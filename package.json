@@ -1,0 +1,23 @@
+{
+  "name": "twitchchatbot",
+  "version": "1.0.0",
+  "description": "A Twitch chat bot built with Node.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": [
+    "twitch",
+    "chatbot",
+    "bot",
+    "twitch-bot",
+    "irc"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "tmi.js": "^1.8.5"
+  }
+}
