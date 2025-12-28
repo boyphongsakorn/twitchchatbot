@@ -101,6 +101,7 @@ function handleCommand(channel, tags, message) {
         .then((response) => response.text())
         .then((result) => {
           const res = JSON.parse(result);
+          console.log(res);
           const aiResponse = res.choices[0].message.content;
           client.reply(channel, `${aiResponse}`, tags.id);
         })
