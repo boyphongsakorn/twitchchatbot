@@ -102,7 +102,7 @@ Edit `.env` file:
 **Bot doesn't respond to commands:**
 - Make sure commands start with `!`
 - Check that the bot has joined the channel successfully
-- Verify the bot isn't timing itself out (messages not starting with `!`)
+- Verify the bot isn't ignoring its own messages (the `self` check in code)
 
 ## Dependencies
 
