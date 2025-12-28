@@ -1,0 +1,43 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+dependencies:
+  dotenv:
+    specifier: ^17.2.3
+    version: 17.2.3
+  tmi.js:
+    specifier: 1.9.0-pre.1
+    version: 1.9.0-pre.1
+
+packages:
+
+  /dotenv@17.2.3:
+    resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
+    engines: {node: '>=12'}
+    dev: false
+
+  /tmi.js@1.9.0-pre.1:
+    resolution: {integrity: sha512-PhLLYzMV5q9bNFqX0cEMn5j0ulcRtVs7ToLkBPVNR06LA/Oo68gTY10ftJyK/2N+xBPokFOSE0LPtbYvJgP8Rg==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      ws: 8.8.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
+
+  /ws@8.8.0:
+    resolution: {integrity: sha512-JDAgSYQ1ksuwqfChJusw1LSJ8BizJ2e/vVu5Lxjq3YvNJNlROv1ui4i+c/kUUrPheBvQl4c5UbERhTwKa6QBJQ==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: ^5.0.2
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+    dev: false

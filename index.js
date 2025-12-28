@@ -72,6 +72,42 @@ function handleCommand(channel, tags, message) {
       client.say(channel, `Bot uptime: ${hours}h ${minutes}m ${seconds}s ⏰`);
       break;
 
+    case 'askai':
+      // const myHeaders = 
+      // myHeaders.append("Authorization", "Bearer " + process.env.LOCALLLM_API_KEY);
+      // myHeaders.append("Content-Type", "application/json");
+
+      const raw = JSON.stringify({
+        "model": "gemma3:270m",
+        "messages": [
+          {
+            "role": "user",
+            "content": message.replace('!askai', '').trim()
+          }
+        ]
+      });
+
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+        },
+        body: raw,
+        redirect: "manual"
+      };
+
+      fetch("https://localllm.pwisetthon.com/api/chat/completions", requestOptions)
+        .then((response) => response.text())
+        .then((result) => {
+          const res = JSON.parse(result);
+          const aiResponse = res.choices[0].message.content;
+          client.reply(channel, `${aiResponse}`, tags.id);
+        })
+        .catch((error) => console.error(error));
+      // client.reply(channel, `@${tags.username}, AI features are coming soon! 🤖`, tags.id);
+      break;
+
     default:
       // Unknown command - you can choose to respond or ignore
       break;
