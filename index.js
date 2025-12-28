@@ -97,7 +97,7 @@ function handleCommand(channel, tags, message) {
         redirect: "manual"
       };
 
-      fetch("https://localllm.pwisetthon.com/api/chat/completions", requestOptions)
+      fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
         .then((response) => response.text())
         .then((result) => {
           const res = JSON.parse(result);
