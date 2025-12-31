@@ -77,7 +77,7 @@ const tmi = require('tmi.js');
             "messages": [
               {
                 "role": "user",
-                "content": message.replace('!askai', '').trim() + " (answer me in the plain text for send to twitch chat)"
+                "content": message.replace('!askai', '').trim()
               }
             ]
           });
