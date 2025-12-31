@@ -77,7 +77,7 @@ const tmi = require('tmi.js');
             "messages": [
               {
                 "role": "user",
-                "content": message.replace('!askai', '').trim() + " (ตอบกลับในรูปแบบข้อความ สำหรับ irc เอาส่งไป chat ใน twitch)"
+                "content": message.replace('!askai', '').trim() + " (answer me in plant text for send to twitch chat)"
               }
             ]
           });
