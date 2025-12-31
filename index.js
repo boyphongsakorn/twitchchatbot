@@ -103,39 +103,39 @@ const tmi = require('tmi.js');
             .catch((error) => console.error(error));
           break;
         } else {
-          const raw = JSON.stringify({
-            "model": "gemma3:270m",
-            "messages": [
-              {
-                "role": "user",
-                "content": "\""+message.replace('!askai', '').trim()+"\" is this message have thai characters? Answer me with yes or no only."
-              }
-            ]
-          });
+          // const raw = JSON.stringify({
+          //   "model": "gemma3:270m",
+          //   "messages": [
+          //     {
+          //       "role": "user",
+          //       "content": "\""+message.replace('!askai', '').trim()+"\" is this message have thai characters? Answer me with yes or no only."
+          //     }
+          //   ]
+          // });
 
-          const requestOptions = {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
-            },
-            body: raw,
-            redirect: "manual"
-          };
+          // const requestOptions = {
+          //   method: "POST",
+          //   headers: {
+          //     "Content-Type": "application/json",
+          //     "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+          //   },
+          //   body: raw,
+          //   redirect: "manual"
+          // };
 
-          fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
-            .then((response) => response.text())
-            .then((result) => {
-              const res = JSON.parse(result);
-              console.log(res);
-              const aiResponse = res.choices[0].message.content;
-              if(aiResponse.toLowerCase().includes('yes')){
+          // fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
+          //   .then((response) => response.text())
+          //   .then((result) => {
+          //     const res = JSON.parse(result);
+          //     console.log(res);
+          //     const aiResponse = res.choices[0].message.content;
+          //     if(aiResponse.toLowerCase().includes('yes')){
                 client.reply(channel, `กรุณาใส่ข้อความหลังคำสั่ง !askai ด้วยครับ`, tags.id);
-              } else {
-                client.reply(channel, `Please ask a question with content.`, tags.id);
-              }
-            })
-            .catch((error) => console.error(error));
+            //   } else {
+            //     client.reply(channel, `Please ask a question with content.`, tags.id);
+            //   }
+            // })
+            // .catch((error) => console.error(error));
           break;
         }
 
