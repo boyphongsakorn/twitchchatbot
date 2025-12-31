@@ -55,19 +55,10 @@ const tmi = require('tmi.js');
     const command = args[0].toLowerCase();
 
     switch (command) {
-      case 'hello':
-      case 'hi':
-        client.say(channel, `Hello @${tags.username}! 👋`);
-        break;
 
       case 'commands':
       case 'help':
-        client.say(channel, 'Available commands: !hello, !dice, !uptime, !commands');
-        break;
-
-      case 'dice':
-        const roll = Math.floor(Math.random() * 6) + 1;
-        client.say(channel, `@${tags.username} rolled a ${roll}! 🎲`);
+        client.say(channel, 'Available commands: !askai, !uptime, !commands');
         break;
 
       case 'uptime':
@@ -79,41 +70,74 @@ const tmi = require('tmi.js');
         break;
 
       case 'askai':
-        // const myHeaders = 
-        // myHeaders.append("Authorization", "Bearer " + process.env.LOCALLLM_API_KEY);
-        // myHeaders.append("Content-Type", "application/json");
 
-        const raw = JSON.stringify({
-          "model": "gemma3:270m",
-          "messages": [
-            {
-              "role": "user",
-              "content": message.replace('!askai', '').trim()
-            }
-          ]
-        });
+        if(message.replace('!askai', '').trim().length != 0){
+          const raw = JSON.stringify({
+            "model": "gemma3:270m",
+            "messages": [
+              {
+                "role": "user",
+                "content": message.replace('!askai', '').trim()
+              }
+            ]
+          });
 
-        const requestOptions = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
-          },
-          body: raw,
-          redirect: "manual"
-        };
+          const requestOptions = {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+            },
+            body: raw,
+            redirect: "manual"
+          };
 
-        fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
-          .then((response) => response.text())
-          .then((result) => {
-            const res = JSON.parse(result);
-            console.log(res);
-            const aiResponse = res.choices[0].message.content;
-            client.reply(channel, `${aiResponse}`, tags.id);
-          })
-          .catch((error) => console.error(error));
-        // client.reply(channel, `@${tags.username}, AI features are coming soon! 🤖`, tags.id);
-        break;
+          fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
+            .then((response) => response.text())
+            .then((result) => {
+              const res = JSON.parse(result);
+              console.log(res);
+              const aiResponse = res.choices[0].message.content;
+              client.reply(channel, `${aiResponse}`, tags.id);
+            })
+            .catch((error) => console.error(error));
+          break;
+        } else {
+          const raw = JSON.stringify({
+            "model": "gemma3:270m",
+            "messages": [
+              {
+                "role": "user",
+                "content": "\""+message.replace('!askai', '').trim()+"\" is this message have thai characters? Answer me with yes or no only."
+              }
+            ]
+          });
+
+          const requestOptions = {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+            },
+            body: raw,
+            redirect: "manual"
+          };
+
+          fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
+            .then((response) => response.text())
+            .then((result) => {
+              const res = JSON.parse(result);
+              console.log(res);
+              const aiResponse = res.choices[0].message.content;
+              if(aiResponse.toLowerCase().includes('yes')){
+                client.reply(channel, `กรุณาใส่ข้อความหลังคำสั่ง !askai ด้วยครับ`, tags.id);
+              } else {
+                client.reply(channel, `Please ask a question with content.`, tags.id);
+              }
+            })
+            .catch((error) => console.error(error));
+          break;
+        }
 
       default:
         // Unknown command - you can choose to respond or ignore
