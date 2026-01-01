@@ -3,6 +3,7 @@ const tmi = require('tmi.js');
 const fastify = require('fastify')({ logger: true });
 
 let viewerlist = [];
+const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyalone99', process.env.TWITCH_USERNAME];
 
 (async () => {
   const twitchrefresh = await fetch('https://twitchtokengenerator.com/api/refresh/'+process.env.TWITCH_OAUTH_REFRESH);
@@ -164,7 +165,9 @@ let viewerlist = [];
   });
 
   client.on('join', (channel, username, self) => {
-    viewerlist.push(username);
+    if(!dontshow.includes(username)) {
+      viewerlist.push(username);
+    }
   });
 
   client.on('part', (channel, username, self) => {
