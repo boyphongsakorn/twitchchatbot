@@ -26,7 +26,7 @@ WORKDIR '/app'
 # COPY package*.json ./
 # COPY pnpm-*.yaml ./
 # RUN pnpm fetch --prod
-ADD . ./
+# ADD . ./
 
 RUN npm install
 CMD ["npm","start","dev"]

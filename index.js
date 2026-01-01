@@ -1,5 +1,8 @@
 require('dotenv').config();
 const tmi = require('tmi.js');
+const fastify = require('fastify')({ logger: true });
+
+let viewerlist = [];
 
 (async () => {
   const twitchrefresh = await fetch('https://twitchtokengenerator.com/api/refresh/'+process.env.TWITCH_OAUTH_REFRESH);
@@ -159,4 +162,29 @@ const tmi = require('tmi.js');
     client.disconnect();
     process.exit(0);
   });
+
+  client.on('join', (channel, username, self) => {
+    viewerlist.push(username);
+  });
+
+  client.on('part', (channel, username, self) => {
+    viewerlist = viewerlist.filter(user => user !== username);
+  });
 })();
+
+fastify.get('/viewers', async (request, reply) => {
+  reply
+    .code(200)
+    .header('Access-Control-Allow-Origin', '*')
+    .header('Cache-Control', 'no-cache, no-store, must-revalidate')
+    .header('Refresh', '5')
+    .send({ viewers: viewerlist });
+});
+
+// Run the server!
+fastify.listen({ port: process.env.PORT || 3000 , host: '0.0.0.0' }, (err) => {
+  if (err) {
+    fastify.log.error(err)
+    process.exit(1)
+  }
+})
