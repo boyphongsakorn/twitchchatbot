@@ -28,5 +28,7 @@ WORKDIR '/app'
 # RUN pnpm fetch --prod
 # ADD . ./
 
-RUN npm install
+COPY . .
+
+RUN npm install --production
 CMD ["npm","start","dev"]
