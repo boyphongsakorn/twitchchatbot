@@ -181,7 +181,7 @@ fastify.get('/viewers', async (request, reply) => {
     .header('Access-Control-Allow-Origin', '*')
     .header('Cache-Control', 'no-cache, no-store, must-revalidate')
     .header('Refresh', '5')
-    .send({ viewers: viewerlist });
+    .send(viewerlist);
 });
 
 // Run the server!
