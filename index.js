@@ -50,6 +50,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     // Command handler
     if (message.startsWith('!')) {
       handleCommand(channel, tags, message);
+    } else {
+      handleMessage(channel, tags, message);
     }
   });
 
@@ -147,6 +149,40 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         // Unknown command - you can choose to respond or ignore
         break;
     }
+  }
+
+  function handleMessage(channel, tags, message) {
+    const raw = JSON.stringify({
+      "model": "gemma3n:e2b",
+      "messages": [
+        {
+          "role": "user",
+          "content": "\"" + message + "\" จากข้อความข้างต้น ใช่ข้อความในลักษณะอยากเล่นเกมด้วยไหม ตอบแค่ yes or no"
+        }
+      ]
+    });
+
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+      },
+      body: raw,
+      redirect: "manual"
+    };
+
+    fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
+      .then((response) => response.text())
+      .then((result) => {
+        const res = JSON.parse(result);
+        console.log(res);
+        const aiResponse = res.choices[0].message.content;
+        if(aiResponse.toLowerCase().includes('yes')){
+          client.reply(channel, 'https://discord.gg/6HJ2C99cqR', tags.id);
+        }
+      })
+      .catch((error) => console.error(error));
   }
 
   // Error handler
