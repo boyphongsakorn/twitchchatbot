@@ -51,7 +51,9 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     if (message.startsWith('!')) {
       handleCommand(channel, tags, message);
     } else {
-      handleMessage(channel, tags, message);
+      if(tags.badges && tags.badges.bot !== '1') {
+        handleMessage(channel, tags, message);
+      }
     }
   });
 
