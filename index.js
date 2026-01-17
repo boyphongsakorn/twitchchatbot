@@ -40,6 +40,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     console.log(`Disconnected: ${reason}`);
   });
 
+  const knownBots = ['nightbot', 'streamelements', 'moobot', 'ba99bot'];
+
   client.on('message', (channel, tags, message, self) => {
     // Ignore messages from the bot itself
     if (self) return;
@@ -51,7 +53,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     if (message.startsWith('!')) {
       handleCommand(channel, tags, message);
     } else {
-      if(tags.badges && tags.badges.bot !== '1') {
+      if(!knownBots.includes(tags.username.toLowerCase())) {
         handleMessage(channel, tags, message);
       }
     }
