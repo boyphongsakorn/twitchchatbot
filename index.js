@@ -156,7 +156,44 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
   }
 
   function handleMessage(channel, tags, message) {
-    const raw = JSON.stringify({
+
+    let raw = JSON.stringify({
+      "model": "gemma3n:e2b",
+      "messages": [
+        {
+          "role": "user",
+          "content": "\"" + message + "\" is that scam message? Answer me with yes or no only."
+        }
+      ]
+    });
+
+    let requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+      },
+      body: raw,
+      redirect: "manual"
+    };
+
+    fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
+      .then((response) => response.text())
+      .then((result) => {
+        const res = JSON.parse(result);
+        console.log(res);
+        console.log(res.choices[0].message);
+        const aiResponse = res.choices[0].message.content;
+        if(aiResponse.toLowerCase().includes('yes')){
+          //remove scam message
+          client.deletemessage(channel, tags.id).catch((err) => {
+            console.error('Failed to delete message:', err);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+
+    raw = JSON.stringify({
       "model": "gemma3n:e2b",
       "messages": [
         {
@@ -166,7 +203,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       ]
     });
 
-    const requestOptions = {
+    requestOptions = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
