@@ -186,9 +186,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         const aiResponse = res.choices[0].message.content;
         if(aiResponse.toLowerCase().includes('yes')){
           //remove scam message
-          client.deletemessage(channel, tags.id).catch((err) => {
-            console.error('Failed to delete message:', err);
-          });
+          client.timeout(channel, tags.username, 1, 'Scam message detected').catch((err) => console.error(err));
         }
       })
       .catch((error) => console.error(error));
