@@ -1,6 +1,6 @@
 require('dotenv').config();
 const tmi = require('tmi.js');
-const fastify = require('fastify')({ logger: true });
+const fastify = require('fastify')({ logger: false });
 
 let viewerlist = [];
 const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyalone99', process.env.TWITCH_USERNAME];
