@@ -162,7 +162,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
         fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['user-id']}&moderator_id=${tags['user-id']}&message_id=${tags.id}`, removeapioptions)
           .then(response => {
-            console.log(response.body);
+            console.log(response.json());
             if (response.ok) {
               console.log(`Deleted message from ${tags.username} for scam content.`);
             } else {
