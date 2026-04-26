@@ -160,9 +160,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
         console.log(tags);
 
-        fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['user-id']}&moderator_id=${tags['user-id']}&message_id=${tags.id}`, removeapioptions)
+        fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['room-id']}&moderator_id=1414739525&message_id=${tags.id}`, removeapioptions)
           .then(response => {
-            console.log(response.json());
             if (response.ok) {
               console.log(`Deleted message from ${tags.username} for scam content.`);
             } else {
@@ -218,7 +217,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             }
           };
 
-          fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['user-id']}&moderator_id=${tags['user-id']}&message_id=${tags.id}`, removeapioptions)
+          fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['room-id']}&moderator_id=1414739525&message_id=${tags.id}`, removeapioptions)
             .then(response => {
               if (response.ok) {
                 console.log(`Deleted message from ${tags.username} for scam content.`);
