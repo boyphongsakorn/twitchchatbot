@@ -149,6 +149,26 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
           break;
         }
 
+      case 'testdelmes':
+        let removeapioptions = {
+          method: 'DELETE',
+          headers: {
+            'Client-ID': 'gp762nuuoqcoxypju8c569th9wz7q5',
+            'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
+          }
+        };
+
+        fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['user-id']}&moderator_id=${tags['user-id']}&message_id=${tags.id}`, removeapioptions)
+          .then(response => {
+            if (response.ok) {
+              console.log(`Deleted message from ${tags.username} for scam content.`);
+            } else {
+              console.error(`Failed to delete message: ${response.statusText}`);
+            }
+          })
+          .catch(error => console.error(`Error deleting message: ${error}`));
+        break;
+
       default:
         // Unknown command - you can choose to respond or ignore
         break;
