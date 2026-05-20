@@ -83,11 +83,11 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
         if(message.replace('!askai', '').trim().length != 0){
           const raw = JSON.stringify({
-            "model": "gemma3n:e2b",
+            "model": "gemma3n:e2b-clone",
             "messages": [
               {
                 "role": "user",
-                "content": message.replace('!askai', '').trim() + " ตอบแบบบรรทัดเดียว,สั้น,ไม่มี **"
+                "content": message.replace('!askai', '').trim()
               }
             ]
           });
@@ -184,7 +184,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       "messages": [
         {
           "role": "user",
-          "content": "\"" + message + "\" is that scam message? Answer me with yes or no only."
+          "content": "\"" + message + "\" is that scam message? Answer me just yes or no."
         }
       ]
     });
