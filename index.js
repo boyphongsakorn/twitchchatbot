@@ -83,7 +83,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
         if(message.replace('!askai', '').trim().length != 0){
           const raw = JSON.stringify({
-            "model": "gemma3n:e2b-clone",
+            "model": "gemma3ne2b-fortwitchchat",
             "messages": [
               {
                 "role": "user",
