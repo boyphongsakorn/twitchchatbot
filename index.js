@@ -177,14 +177,14 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     }
   }
 
-  function handleMessage(channel, tags, message) {
+  async function handleMessage(channel, tags, message) {
 
     let raw = JSON.stringify({
       "model": "gemma3n:e2b",
       "messages": [
         {
           "role": "user",
-          "content": "\"" + message + "\" is that scam message? Answer me just yes or no."
+          "content": "\"" + message + "\" is that question message? Answer me just yes or no."
         }
       ]
     });
@@ -199,37 +199,70 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       redirect: "manual"
     };
 
-    if(message.length > 20) {
-      fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
-        .then((response) => response.text())
-        .then((result) => {
-          const res = JSON.parse(result);
-          console.log(res);
-          console.log(res.choices[0].message);
-          const aiResponse = res.choices[0].message.content;
-          if(aiResponse.toLowerCase().includes('yes')){
-            //remove scam message
-            // client.timeout(channel, tags.username, 1, 'Scam message detected').catch((err) => console.error(err));
-            let removeapioptions = {
-              method: 'DELETE',
-              headers: {
-                'Client-ID': 'gp762nuuoqcoxypju8c569th9wz7q5',
-                'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
-              }
-            };
+    let isQuestion = false;
+    let fetchllm = await fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions);
+    let result = await fetchllm.text();
+    let res = JSON.parse(result);
+    console.log(res);
+    console.log(res.choices[0].message);
+    const aiResponse = res.choices[0].message.content;
+    if(aiResponse.toLowerCase().includes('yes')){
+      isQuestion = true;
+    }
 
-            fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['room-id']}&moderator_id=1414739525&message_id=${tags.id}`, removeapioptions)
-              .then(response => {
-                if (response.ok) {
-                  console.log(`Deleted message from ${tags.username} for scam content.`);
-                } else {
-                  console.error(`Failed to delete message: ${response.statusText}`);
-                }
-              })
-              .catch(error => console.error(`Error deleting message: ${error}`));
+    if (!isQuestion) {
+      raw = JSON.stringify({
+        "model": "gemma3n:e2b",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\"" + message + "\" is that scam message? Answer me just yes or no."
           }
-        })
-        .catch((error) => console.error(error));
+        ]
+      });
+
+      requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+        },
+        body: raw,
+        redirect: "manual"
+      };
+
+      if(message.length > 20) {
+        fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
+          .then((response) => response.text())
+          .then((result) => {
+            const res = JSON.parse(result);
+            console.log(res);
+            console.log(res.choices[0].message);
+            const aiResponse = res.choices[0].message.content;
+            if(aiResponse.toLowerCase().includes('yes')){
+              //remove scam message
+              // client.timeout(channel, tags.username, 1, 'Scam message detected').catch((err) => console.error(err));
+              let removeapioptions = {
+                method: 'DELETE',
+                headers: {
+                  'Client-ID': 'gp762nuuoqcoxypju8c569th9wz7q5',
+                  'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
+                }
+              };
+
+              fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['room-id']}&moderator_id=1414739525&message_id=${tags.id}`, removeapioptions)
+                .then(response => {
+                  if (response.ok) {
+                    console.log(`Deleted message from ${tags.username} for scam content.`);
+                  } else {
+                    console.error(`Failed to delete message: ${response.statusText}`);
+                  }
+                })
+                .catch(error => console.error(`Error deleting message: ${error}`));
+            }
+          })
+          .catch((error) => console.error(error));
+      }
     }
 
     raw = JSON.stringify({
