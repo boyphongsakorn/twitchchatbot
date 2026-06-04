@@ -212,7 +212,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
     if (!isQuestion) {
       raw = JSON.stringify({
-        "model": "gemma3n:e2b",
+        "model": "gemma3:4b",
         "messages": [
           {
             "role": "user",
@@ -266,7 +266,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     }
 
     raw = JSON.stringify({
-      "model": "gemma3n:e2b",
+      "model": "gemma3:4b",
       "messages": [
         {
           "role": "user",
