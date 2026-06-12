@@ -102,7 +102,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             redirect: "manual"
           };
 
-          fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
+          fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions)
             .then((response) => response.text())
             .then((result) => {
               const res = JSON.parse(result);
@@ -133,7 +133,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
           //   redirect: "manual"
           // };
 
-          // fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
+          // fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions)
           //   .then((response) => response.text())
           //   .then((result) => {
           //     const res = JSON.parse(result);
@@ -200,7 +200,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     };
 
     let isQuestion = false;
-    let fetchllm = await fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions);
+    let fetchllm = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
     let result = await fetchllm.text();
     let res = JSON.parse(result);
     console.log(res);
@@ -232,7 +232,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       };
 
       if(message.length > 20) {
-        fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
+        fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions)
           .then((response) => response.text())
           .then((result) => {
             const res = JSON.parse(result);
@@ -285,7 +285,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       redirect: "manual"
     };
 
-    fetch("http://192.168.31.210:3001/api/chat/completions", requestOptions)
+    fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions)
       .then((response) => response.text())
       .then((result) => {
         const res = JSON.parse(result);
