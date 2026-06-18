@@ -216,7 +216,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         "messages": [
           {
             "role": "user",
-            "content": "\"" + message + "\" is that scam message? Answer me just yes or no."
+            "content": "\"" + message + "\" is that scam or advertising message? Answer me just yes or no."
           }
         ]
       });
