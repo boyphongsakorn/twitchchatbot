@@ -231,7 +231,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         redirect: "manual"
       };
 
-      if(message.length > 20) {
+      if(message.length > 15) {
         fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions)
           .then((response) => response.text())
           .then((result) => {
