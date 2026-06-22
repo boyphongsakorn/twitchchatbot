@@ -232,14 +232,41 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       };
 
       if(message.length > 15) {
-        fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions)
-          .then((response) => response.text())
-          .then((result) => {
+        try {
+          const response = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
+          const result = await response.text();
             const res = JSON.parse(result);
             console.log(res);
             console.log(res.choices[0].message);
             const aiResponse = res.choices[0].message.content;
-            if(aiResponse.toLowerCase().includes('yes')){
+
+          raw = JSON.stringify({
+            "model": "granite4:3b",
+            "messages": [
+              {
+                "role": "user",
+                "content": "\"" + message + "\" is that scam or promotion or advertising message? Answer me just yes or no."
+              }
+            ]
+          });
+
+          requestOptions = {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+            },
+            body: raw,
+            redirect: "manual"
+          };
+
+          const responsetwo = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
+          const resulttwo = await responsetwo.text();
+          const restwo = JSON.parse(resulttwo);
+          console.log(restwo.choices[0].message);
+          const aiResponsetwo = restwo.choices[0].message.content;
+
+          if(aiResponse.toLowerCase().includes('yes') && aiResponsetwo.toLowerCase().includes('yes')){
               //remove scam message
               // client.timeout(channel, tags.username, 1, 'Scam message detected').catch((err) => console.error(err));
               let removeapioptions = {
@@ -250,18 +277,20 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
                 }
               };
 
-              fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['room-id']}&moderator_id=1414739525&message_id=${tags.id}`, removeapioptions)
-                .then(response => {
-                  if (response.ok) {
+            try {
+              const deleteResponse = await fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['room-id']}&moderator_id=1414739525&message_id=${tags.id}`, removeapioptions);
+              if (deleteResponse.ok) {
                     console.log(`Deleted message from ${tags.username} for scam content.`);
                   } else {
-                    console.error(`Failed to delete message: ${response.statusText}`);
+                console.error(`Failed to delete message: ${deleteResponse.statusText}`);
                   }
-                })
-                .catch(error => console.error(`Error deleting message: ${error}`));
+            } catch (error) {
+              console.error(`Error deleting message: ${error}`);
             }
-          })
-          .catch((error) => console.error(error));
+          }
+        } catch (error) {
+          console.error(error);
+        }
       }
     }
 
@@ -285,9 +314,9 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       redirect: "manual"
     };
 
-    fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions)
-      .then((response) => response.text())
-      .then((result) => {
+    try {
+      const response = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
+      const result = await response.text();
         const res = JSON.parse(result);
         console.log(res);
         console.log(res.choices[0].message);
@@ -295,8 +324,9 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         if(aiResponse.toLowerCase().includes('yes')){
           client.reply(channel, 'https://discord.gg/6HJ2C99cqR', tags.id);
         }
-      })
-      .catch((error) => console.error(error));
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   // Error handler
