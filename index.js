@@ -8,7 +8,7 @@ fastify.register(require('@fastify/static'), {
 });
 
 let viewerlist = [];
-const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot'];
+const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyalone99', process.env.TWITCH_USERNAME];
 
 (async () => {
   const twitchrefresh = await fetch('https://twitchtokengenerator.com/api/refresh/'+process.env.TWITCH_OAUTH_REFRESH);

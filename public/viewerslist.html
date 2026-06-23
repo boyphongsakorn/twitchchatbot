@@ -19,6 +19,9 @@
         }
 
         .widget-EventList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
             font-weight: 700;
             font-size: {font_size};
             font-family: "{Righteous}";
@@ -27,14 +30,22 @@
             overflow: hidden;
             list-style: none;
             padding: 0;
-            margin: 10px 30px;
+            margin: 10px 0px;
             text-transform: uppercase;
             position: relative;
         }
 
         .widget-EventList li {
-            width: 100%;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             position: relative;
+            white-space: nowrap;
+            padding: 10px 14px;
+            min-width: 100px;
+            min-height: 2.2em;
+            border-radius: 4px;
             -webkit-animation: {show_animation} {animation_speed} forwards;
                     animation: {show_animation} {animation_speed} forwards;
         }
@@ -54,14 +65,20 @@
         .widget-EventList li > div:last-child {
             overflow: hidden;
             position: relative;
-            margin-bottom: 4px;
-            padding: 0 10px;
+            margin: 0;
+            padding: 0;
             opacity: 0.7;
-            font-size: 0.9em;
-            height: 1.2em;
-            line-height: 1.2em;
+            font-size: 0.95em;
+            height: auto;
+            line-height: 1.4em;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+            min-height: 1.8em;
             -webkit-animation: growB {animation_speed} forwards;
                     animation: growB {animation_speed} forwards;
+            margin-top: -12px;
+            margin-left: -10px;
         }
 
         .widget-EventList li:first-child > div:first-child {
@@ -139,19 +156,23 @@
         }
 
         .widget-EventList .tag {
-            font-size: 0.6em;
-            line-height: 0.6em;
-        /*     top: 0.4em; */
-        /*     right: 0.3em; */
-            top: 0.8em;
-            position: absolute;
-            font-family: "Righteous"
+            font-size: 1em;
+            line-height: 1.6em;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: static;
+            margin: 0;
+            padding: 0 6px;
+            color: inherit;
+            font-family: "Playpen Sans Thai";
         }
 
         .widget-EventList .message {
-            padding-top: 1em;
+            padding-top: 0;
             padding-right: 3em;
-            display: block;
+            display: inline-flex;
+            align-items: center;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -209,26 +230,27 @@
         const template = document.getElementById('eventlist_item').innerHTML;
 
         function renderItem(item) {
-            const eventType = item?.eventType || 'viewer';
-            const tag = eventType;
-            let message = '';
+            // const eventType = item?.eventType || 'viewer';
+            // const tag = eventType;
+            // let message = '';
 
-            if (typeof item === 'string') {
-                message = item;
-            } else if (item?.message) {
-                message = item.message;
-            } else if (item?.from) {
-                message = item.from;
-            } else if (item?.name) {
-                message = item.name;
-            } else {
-                message = JSON.stringify(item);
-            }
+            // if (typeof item === 'string') {
+            //     message = item;
+            // } else if (item?.message) {
+            //     message = item.message;
+            // } else if (item?.from) {
+            //     message = item.from;
+            // } else if (item?.name) {
+            //     message = item.name;
+            // } else {
+            //     message = JSON.stringify(item);
+            // }
+
+            const eventType = 'viewer';
 
             return template
                 .replace('{eventType}', eventType)
-                .replace('{tag}', tag)
-                .replace('{message}', message);
+                .replace('{tag}', item)
         }
 
         async function fetchViewers() {
