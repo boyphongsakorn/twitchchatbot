@@ -231,6 +231,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               } catch (error) {
                 console.error(`Error deleting message: ${error}`);
               }
+            } else {
+              client.reply(channel, 'ข้อความนี้ไม่ใช่ข้อความสแปม', tags.id);
             }
           } catch (error) {
             console.error(error);
