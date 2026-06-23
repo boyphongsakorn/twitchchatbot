@@ -2,6 +2,10 @@ require('dotenv').config();
 const tmi = require('tmi.js');
 const fastify = require('fastify')({ logger: false });
 
+fastify.register(require('@fastify/static'), {
+  root: path.join(__dirname, 'public'),
+});
+
 let viewerlist = [];
 const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyalone99', process.env.TWITCH_USERNAME];
 
@@ -365,13 +369,7 @@ fastify.get('/viewers', async (request, reply) => {
 });
 
 fastify.get('/viewerslist', async (request, reply) => {
-  reply
-    .code(200)
-    .header('Access-Control-Allow-Origin', '*')
-    .header('Cache-Control', 'no-cache, no-store, must-revalidate')
-    .header('Refresh', '5')
-    .type('text/html')
-    .sendFile('viewerslist.html');
+  return reply.sendFile('viewerslist.html');
 });
 
 // Run the server!
