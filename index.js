@@ -162,7 +162,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               "messages": [
                 {
                   "role": "user",
-                  "content": "\"" + message + "\" is that scam or promotion or advertising message? Answer me just yes or no."
+                  "content": "\"" + message.replace('!testdelmes', '').trim() + "\" is that scam or promotion or advertising message? Answer me just yes or no."
                 }
               ]
             });
