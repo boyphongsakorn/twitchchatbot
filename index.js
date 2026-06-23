@@ -65,7 +65,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
   });
 
   // Command handler function
-  function handleCommand(channel, tags, message) {
+  async function handleCommand(channel, tags, message) {
     const args = message.slice(1).split(' ');
     const command = args[0].toLowerCase();
 
@@ -155,25 +155,107 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         }
 
       case 'testdelmes':
-        let removeapioptions = {
-          method: 'DELETE',
-          headers: {
-            'Client-ID': 'gp762nuuoqcoxypju8c569th9wz7q5',
-            'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
-          }
-        };
+        if (message.replace('!testdelmes', '').trim().length != 0) {
+          try {
+            let raw = JSON.stringify({
+              "model": "qwen3:8b",
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "\"" + message + "\" is that scam or promotion or advertising message? Answer me just yes or no."
+                }
+              ]
+            });
 
-        console.log(tags);
+            let requestOptions = {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+              },
+              body: raw,
+              redirect: "manual"
+            };
+            const response = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
+            const result = await response.text();
+            const res = JSON.parse(result);
+            console.log(res);
+            console.log(res.choices[0].message);
+            const aiResponse = res.choices[0].message.content;
 
-        fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['room-id']}&moderator_id=1414739525&message_id=${tags.id}`, removeapioptions)
-          .then(response => {
-            if (response.ok) {
-              console.log(`Deleted message from ${tags.username} for scam content.`);
-            } else {
-              console.error(`Failed to delete message: ${response.statusText}`);
+            raw = JSON.stringify({
+              "model": "granite4:3b",
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "\"" + message.replace('!testdelmes', '').trim() + "\" is that scam or promotion or advertising message? Answer me just yes or no."
+                }
+              ]
+            });
+
+            requestOptions = {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+              },
+              body: raw,
+              redirect: "manual"
+            };
+
+            const responsetwo = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
+            const resulttwo = await responsetwo.text();
+            const restwo = JSON.parse(resulttwo);
+            console.log(restwo.choices[0].message);
+            const aiResponsetwo = restwo.choices[0].message.content;
+
+            if(aiResponse.toLowerCase().includes('yes') && aiResponsetwo.toLowerCase().includes('yes')){
+              //remove scam message
+              client.reply(channel, 'ข้อความนี้เป็นข้อความสแปม', tags.id);
+              // client.timeout(channel, tags.username, 1, 'Scam message detected').catch((err) => console.error(err));
+              let removeapioptions = {
+                method: 'DELETE',
+                headers: {
+                  'Client-ID': 'gp762nuuoqcoxypju8c569th9wz7q5',
+                  'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
+                }
+              };
+
+              try {
+                const deleteResponse = await fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['room-id']}&moderator_id=1414739525&message_id=${tags.id}`, removeapioptions);
+                if (deleteResponse.ok) {
+                  console.log(`Deleted message from ${tags.username} for scam content.`);
+                } else {
+                  console.error(`Failed to delete message: ${deleteResponse.statusText}`);
+                }
+              } catch (error) {
+                console.error(`Error deleting message: ${error}`);
+              }
             }
-          })
-          .catch(error => console.error(`Error deleting message: ${error}`));
+          } catch (error) {
+            console.error(error);
+          }
+        } else {
+          let removeapioptions = {
+            method: 'DELETE',
+            headers: {
+              'Client-ID': 'gp762nuuoqcoxypju8c569th9wz7q5',
+              'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
+            }
+          };
+
+          console.log(tags);
+
+          fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['room-id']}&moderator_id=1414739525&message_id=${tags.id}`, removeapioptions)
+            .then(response => {
+              if (response.ok) {
+                console.log(`Deleted message from ${tags.username} for scam content.`);
+              } else {
+                console.error(`Failed to delete message: ${response.statusText}`);
+              }
+            })
+            .catch(error => console.error(`Error deleting message: ${error}`));
+        }
         break;
 
       default:
@@ -240,10 +322,10 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         try {
           const response = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
           const result = await response.text();
-            const res = JSON.parse(result);
-            console.log(res);
-            console.log(res.choices[0].message);
-            const aiResponse = res.choices[0].message.content;
+          const res = JSON.parse(result);
+          console.log(res);
+          console.log(res.choices[0].message);
+          const aiResponse = res.choices[0].message.content;
 
           raw = JSON.stringify({
             "model": "granite4:3b",
