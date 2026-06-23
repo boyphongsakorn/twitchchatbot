@@ -360,8 +360,18 @@ fastify.get('/viewers', async (request, reply) => {
     .code(200)
     .header('Access-Control-Allow-Origin', '*')
     .header('Cache-Control', 'no-cache, no-store, must-revalidate')
-    .header('Refresh', '5')
+    .header('Refresh', '30')
     .send(viewerlist);
+});
+
+fastify.get('/viewerslist', async (request, reply) => {
+  reply
+    .code(200)
+    .header('Access-Control-Allow-Origin', '*')
+    .header('Cache-Control', 'no-cache, no-store, must-revalidate')
+    .header('Refresh', '5')
+    .type('text/html')
+    .sendFile('viewerslist.html');
 });
 
 // Run the server!
