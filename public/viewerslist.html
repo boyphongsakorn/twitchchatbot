@@ -199,7 +199,7 @@
     </style>
 </head>
 <body>
-    <div style="background-image: url('https://i.ibb.co/chNv4CFL/alert-box.png'); 
+    <div id="statusHeader" style="background-image: url('https://i.ibb.co/chNv4CFL/alert-box.png'); 
             background-size: 100px 35px; 
             background-repeat: no-repeat; 
             height: 35px; 
@@ -227,6 +227,7 @@
     <script>
         const apiUrl = 'https://anywhere.pwisetthon.com/http://192.168.31.210:5035/viewers';
         const eventList = document.getElementById('eventList');
+        const statusHeader = document.getElementById('statusHeader');
         const template = document.getElementById('eventlist_item').innerHTML;
 
         function renderItem(item) {
@@ -259,6 +260,9 @@
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
                 const items = Array.isArray(data) ? data : [];
+                if (statusHeader) {
+                    statusHeader.style.display = items.length > 0 ? 'flex' : 'none';
+                }
                 eventList.innerHTML = items.map(renderItem).join('');
             } catch (error) {
                 console.error('Error fetching viewers:', error);
