@@ -2,10 +2,16 @@ require('dotenv').config();
 const tmi = require('tmi.js');
 const fastify = require('fastify')({ logger: false });
 const path = require('path');
+const { Agent, setGlobalDispatcher } = require('undici');
 
 fastify.register(require('@fastify/static'), {
   root: path.join(__dirname, 'public'),
 });
+
+setGlobalDispatcher(new Agent({
+  headersTimeout: 30 * 60 * 1000, // 30 min
+  bodyTimeout: 30 * 60 * 1000,
+}));
 
 let viewerlist = [];
 const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyalone99', process.env.TWITCH_USERNAME];
@@ -104,7 +110,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
             },
             body: raw,
-            redirect: "manual"
+            redirect: "manual",
+            signal: AbortSignal.timeout(30 * 60 * 1000)
           };
 
           fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions)
@@ -174,7 +181,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
                 "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
               },
               body: raw,
-              redirect: "manual"
+              redirect: "manual",
+              signal: AbortSignal.timeout(30 * 60 * 1000)
             };
             const response = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
             const result = await response.text();
@@ -200,7 +208,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
                 "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
               },
               body: raw,
-              redirect: "manual"
+              redirect: "manual",
+              signal: AbortSignal.timeout(30 * 60 * 1000)
             };
 
             const responsetwo = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
@@ -285,7 +294,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
       },
       body: raw,
-      redirect: "manual"
+      redirect: "manual",
+      signal: AbortSignal.timeout(30 * 60 * 1000)
     };
 
     let isQuestion = false;
@@ -317,7 +327,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
           "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
         },
         body: raw,
-        redirect: "manual"
+        redirect: "manual",
+        signal: AbortSignal.timeout(30 * 60 * 1000)
       };
 
       if(message.length > 15) {
@@ -346,7 +357,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
             },
             body: raw,
-            redirect: "manual"
+            redirect: "manual",
+            signal: AbortSignal.timeout(30 * 60 * 1000)
           };
 
           const responsetwo = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
@@ -400,7 +412,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
       },
       body: raw,
-      redirect: "manual"
+      redirect: "manual",
+      signal: AbortSignal.timeout(30 * 60 * 1000)
     };
 
     try {
