@@ -21,8 +21,8 @@ importers:
         specifier: 1.9.0-pre.1
         version: 1.9.0-pre.1
       undici:
-        specifier: ^8.6.0
-        version: 8.6.0
+        specifier: 7.21.0
+        version: 7.21.0
 
 packages:
 
@@ -274,9 +274,9 @@ packages:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
     engines: {node: '>=0.6'}
 
-  undici@8.6.0:
-    resolution: {integrity: sha512-l2FlC6I510GawyEd1qgcE/okihKrzy+BRTEBlu6T0fdbM9m5yxtIH5Oa3ysRsH0zC4EhmWUEaSDsy2QngBeRlw==}
-    engines: {node: '>=22.19.0'}
+  undici@7.21.0:
+    resolution: {integrity: sha512-Hn2tCQpoDt1wv23a68Ctc8Cr/BHpUSfaPYrkajTXOS9IKpxVRx/X5m1K2YkbK2ipgZgxXSgsUinl3x+2YdSSfg==}
+    engines: {node: '>=20.18.1'}
 
   ws@8.8.0:
     resolution: {integrity: sha512-JDAgSYQ1ksuwqfChJusw1LSJ8BizJ2e/vVu5Lxjq3YvNJNlROv1ui4i+c/kUUrPheBvQl4c5UbERhTwKa6QBJQ==}
@@ -545,6 +545,6 @@ snapshots:
 
   toidentifier@1.0.1: {}
 
-  undici@8.6.0: {}
+  undici@7.21.0: {}
 
   ws@8.8.0: {}
