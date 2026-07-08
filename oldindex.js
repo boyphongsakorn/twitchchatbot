@@ -13,41 +13,6 @@ setGlobalDispatcher(new Agent({
   bodyTimeout: 30 * 60 * 1000,
 }));
 
-// ---------------------------------------------------------------------------
-// Serial queue for the local LLM endpoint.
-//
-// Multiple chat messages can trigger fetch() calls to the LLM server at
-// nearly the same time. Without a queue, they all fire concurrently. This
-// AsyncQueue makes sure each call to that endpoint waits for the previous
-// one to finish before starting, so 3 fetches "at once" become 3 fetches
-// run one after another instead of racing each other.
-// ---------------------------------------------------------------------------
-class AsyncQueue {
-  constructor() {
-    this._tail = Promise.resolve();
-  }
-
-  // Runs `task` (a function returning a Promise) only after everything
-  // already queued has settled, and returns whatever that task resolves
-  // or rejects with.
-  enqueue(task) {
-    const run = this._tail.then(task, task);
-    // Keep the chain alive even if a task throws, so one failed request
-    // doesn't permanently jam the queue for everyone after it.
-    this._tail = run.then(() => undefined, () => undefined);
-    return run;
-  }
-}
-
-const llmQueue = new AsyncQueue();
-const LLM_ENDPOINT = 'http://192.168.31.220:3001/api/chat/completions';
-
-// Drop-in replacement for fetch() against the LLM endpoint: same signature,
-// same return value (a Promise<Response>), but serialized through llmQueue.
-function queuedFetch(url, options) {
-  return llmQueue.enqueue(() => fetch(url, options));
-}
-
 let viewerlist = [];
 const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyalone99', process.env.TWITCH_USERNAME];
 
@@ -149,7 +114,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             signal: AbortSignal.timeout(30 * 60 * 1000)
           };
 
-          queuedFetch(LLM_ENDPOINT, requestOptions)
+          fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions)
             .then((response) => response.text())
             .then((result) => {
               const res = JSON.parse(result);
@@ -219,7 +184,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               redirect: "manual",
               signal: AbortSignal.timeout(30 * 60 * 1000)
             };
-            const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
+            const response = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
             const result = await response.text();
             const res = JSON.parse(result);
             console.log(res);
@@ -247,7 +212,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               signal: AbortSignal.timeout(30 * 60 * 1000)
             };
 
-            const responsetwo = await queuedFetch(LLM_ENDPOINT, requestOptions);
+            const responsetwo = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
             const resulttwo = await responsetwo.text();
             const restwo = JSON.parse(resulttwo);
             console.log(restwo.choices[0].message);
@@ -334,7 +299,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     };
 
     let isQuestion = false;
-    let fetchllm = await queuedFetch(LLM_ENDPOINT, requestOptions);
+    let fetchllm = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
     let result = await fetchllm.text();
     let res = JSON.parse(result);
     console.log(res);
@@ -368,7 +333,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
       if(message.length > 15) {
         try {
-          const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
+          const response = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
           const result = await response.text();
           const res = JSON.parse(result);
           console.log(res);
@@ -396,7 +361,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             signal: AbortSignal.timeout(30 * 60 * 1000)
           };
 
-          const responsetwo = await queuedFetch(LLM_ENDPOINT, requestOptions);
+          const responsetwo = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
           const resulttwo = await responsetwo.text();
           const restwo = JSON.parse(resulttwo);
           console.log(restwo.choices[0].message);
@@ -452,7 +417,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     };
 
     try {
-      const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
+      const response = await fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions);
       const result = await response.text();
         const res = JSON.parse(result);
         console.log(res);
