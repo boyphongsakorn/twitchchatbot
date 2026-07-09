@@ -376,7 +376,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
           const aiResponse = res.choices[0].message.content;
 
           raw = JSON.stringify({
-            "model": "deepseek-r1:7b",
+            "model": "gemma4:12b",
             "messages": [
               {
                 "role": "user",
