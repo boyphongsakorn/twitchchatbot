@@ -114,7 +114,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
       case 'commands':
       case 'help':
-        client.say(channel, 'Available commands: !askai, !uptime, !commands');
+        client.say(channel, 'Available commands: !ask, !askai, !uptime, !commands');
         break;
 
       case 'uptime':
@@ -125,15 +125,16 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         client.say(channel, `Bot uptime: ${hours}h ${minutes}m ${seconds}s ⏰`);
         break;
 
+      case 'ask':
       case 'askai':
 
-        if(message.replace('!askai', '').trim().length != 0){
+        if(message.replace('!askai', '').trim().length != 0 || message.replace('!ask', '').trim().length != 0) {
           const raw = JSON.stringify({
             "model": "gemma3ne2b-fortwitchchat",
             "messages": [
               {
                 "role": "user",
-                "content": message.replace('!askai', '').trim()
+                "content": message.replace('!askai', '').replace('!ask', '').trim()
               }
             ]
           });
@@ -160,39 +161,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             .catch((error) => console.error(error));
           break;
         } else {
-          // const raw = JSON.stringify({
-          //   "model": "gemma3:270m",
-          //   "messages": [
-          //     {
-          //       "role": "user",
-          //       "content": "\""+message.replace('!askai', '').trim()+"\" is this message have thai characters? Answer me with yes or no only."
-          //     }
-          //   ]
-          // });
-
-          // const requestOptions = {
-          //   method: "POST",
-          //   headers: {
-          //     "Content-Type": "application/json",
-          //     "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
-          //   },
-          //   body: raw,
-          //   redirect: "manual"
-          // };
-
-          // fetch("http://192.168.31.220:3001/api/chat/completions", requestOptions)
-          //   .then((response) => response.text())
-          //   .then((result) => {
-          //     const res = JSON.parse(result);
-          //     console.log(res);
-          //     const aiResponse = res.choices[0].message.content;
-          //     if(aiResponse.toLowerCase().includes('yes')){
-                client.reply(channel, `กรุณาใส่ข้อความหลังคำสั่ง !askai ด้วยครับ`, tags.id);
-            //   } else {
-            //     client.reply(channel, `Please ask a question with content.`, tags.id);
-            //   }
-            // })
-            // .catch((error) => console.error(error));
+          client.reply(channel, `กรุณาใส่ข้อความหลังคำสั่ง !ask ด้วยครับ`, tags.id);
           break;
         }
 
