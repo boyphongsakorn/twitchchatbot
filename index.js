@@ -154,7 +154,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             .then((response) => response.text())
             .then((result) => {
               const res = JSON.parse(result);
-              console.log(res);
+              // console.log(res);
               const aiResponse = res.choices[0].message.content;
               client.reply(channel, `${aiResponse}`, tags.id);
             })
@@ -191,7 +191,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
             const result = await response.text();
             const res = JSON.parse(result);
-            console.log(res);
+            // console.log(res);
             console.log(res.choices[0].message);
             const aiResponse = res.choices[0].message.content;
 
@@ -306,7 +306,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     let fetchllm = await queuedFetch(LLM_ENDPOINT, requestOptions);
     let result = await fetchllm.text();
     let res = JSON.parse(result);
-    console.log(res);
+    // console.log(res);
     console.log(res.choices[0].message);
     const aiResponse = res.choices[0].message.content;
     if(aiResponse.toLowerCase().includes('yes')){
@@ -340,7 +340,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
           const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
           const result = await response.text();
           const res = JSON.parse(result);
-          console.log(res);
+          // console.log(res);
           console.log(res.choices[0].message);
           const aiResponse = res.choices[0].message.content;
 
@@ -404,7 +404,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       "messages": [
         {
           "role": "user",
-          "content": "\"" + message + "\" จากข้อความข้างต้น ใช่ข้อความในลักษณะอยากเล่นเกมด้วยไหม ตอบแค่ yes or no"
+          "content": "\"" + message + "\" from the above message, is it a message that wants to play a game with me? Answer just yes or no."
         }
       ]
     });
@@ -424,7 +424,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
       const result = await response.text();
         const res = JSON.parse(result);
-        console.log(res);
+        // console.log(res);
         console.log(res.choices[0].message);
         const aiResponse = res.choices[0].message.content;
         if(aiResponse.toLowerCase().includes('yes')){
