@@ -52,7 +52,7 @@ let viewerlist = [];
 const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyalone99', process.env.TWITCH_USERNAME];
 
 (async () => {
-  const twitchrefresh = await fetch('https://twitchtokengenerator.com/api/refresh/'+process.env.TWITCH_OAUTH_REFRESH);
+  const twitchrefresh = await fetch('https://twitchtokengenerator.com/api/refresh/' + process.env.TWITCH_OAUTH_REFRESH);
   const twitchdata = await twitchrefresh.json();
   process.env.TWITCH_OAUTH_TOKEN = twitchdata.token ?? twitchdata.access_token;
   console.log('Refreshed Twitch OAuth Token');
@@ -99,7 +99,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     if (message.startsWith('!')) {
       handleCommand(channel, tags, message);
     } else {
-      if(!knownBots.includes(tags.username.toLowerCase())) {
+      if (!knownBots.includes(tags.username.toLowerCase())) {
         handleMessage(channel, tags, message);
       }
     }
@@ -128,7 +128,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       case 'ask':
       case 'askai':
 
-        if(message.replace('!askai', '').trim().length != 0 || message.replace('!ask', '').trim().length != 0) {
+        if (message.replace('!askai', '').trim().length != 0 || message.replace('!ask', '').trim().length != 0) {
           const raw = JSON.stringify({
             "model": "gemma3ne2b-fortwitchchat",
             "messages": [
@@ -222,7 +222,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             console.log(restwo.choices[0].message);
             const aiResponsetwo = restwo.choices[0].message.content;
 
-            if(aiResponse.toLowerCase().includes('yes') && aiResponsetwo.toLowerCase().includes('yes')){
+            if (aiResponse.toLowerCase().includes('yes') && aiResponsetwo.toLowerCase().includes('yes')) {
               //remove scam message
               client.reply(channel, 'ข้อความนี้เป็นข้อความสแปม', tags.id);
               // client.timeout(channel, tags.username, 1, 'Scam message detected').catch((err) => console.error(err));
@@ -309,7 +309,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     // console.log(res);
     console.log(res.choices[0].message);
     const aiResponse = res.choices[0].message.content;
-    if(aiResponse.toLowerCase().includes('yes')){
+    if (aiResponse.toLowerCase().includes('yes')) {
       isQuestion = true;
     }
 
@@ -335,7 +335,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         signal: AbortSignal.timeout(30 * 60 * 1000)
       };
 
-      if(message.length > 15) {
+      if (message.length > 15) {
         try {
           const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
           const result = await response.text();
@@ -371,24 +371,25 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
           console.log(restwo.choices[0].message);
           const aiResponsetwo = restwo.choices[0].message.content;
 
-          if(aiResponse.toLowerCase().includes('yes') && aiResponsetwo.toLowerCase().includes('yes')){
-              //remove scam message
-              // client.timeout(channel, tags.username, 1, 'Scam message detected').catch((err) => console.error(err));
-              let removeapioptions = {
-                method: 'DELETE',
-                headers: {
-                  'Client-ID': 'gp762nuuoqcoxypju8c569th9wz7q5',
-                  'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
-                }
-              };
+          if (aiResponse.toLowerCase().includes('yes') && aiResponsetwo.toLowerCase().includes('yes')) {
+            isQuestion = false;
+            //remove scam message
+            // client.timeout(channel, tags.username, 1, 'Scam message detected').catch((err) => console.error(err));
+            let removeapioptions = {
+              method: 'DELETE',
+              headers: {
+                'Client-ID': 'gp762nuuoqcoxypju8c569th9wz7q5',
+                'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
+              }
+            };
 
             try {
               const deleteResponse = await fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['room-id']}&moderator_id=1414739525&message_id=${tags.id}`, removeapioptions);
               if (deleteResponse.ok) {
-                    console.log(`Deleted message from ${tags.username} for scam content.`);
-                  } else {
+                console.log(`Deleted message from ${tags.username} for scam content.`);
+              } else {
                 console.error(`Failed to delete message: ${deleteResponse.statusText}`);
-                  }
+              }
             } catch (error) {
               console.error(`Error deleting message: ${error}`);
             }
@@ -399,39 +400,41 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       }
     }
 
-    raw = JSON.stringify({
-      "model": "qwen3.5:9b",
-      "messages": [
-        {
-          "role": "user",
-          "content": "\"" + message + "\" from the above message, is it a message that wants to play a game with me? Answer just yes or no."
-        }
-      ]
-    });
+    if (isQuestion) {
+      raw = JSON.stringify({
+        "model": "qwen3.5:9b",
+        "messages": [
+          {
+            "role": "user",
+            "content": "\"" + message + "\" from the above message, is it a message that wants to play a game with me? Answer just yes or no."
+          }
+        ]
+      });
 
-    requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
-      },
-      body: raw,
-      redirect: "manual",
-      signal: AbortSignal.timeout(30 * 60 * 1000)
-    };
+      requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+        },
+        body: raw,
+        redirect: "manual",
+        signal: AbortSignal.timeout(30 * 60 * 1000)
+      };
 
-    try {
-      const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
-      const result = await response.text();
+      try {
+        const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
+        const result = await response.text();
         const res = JSON.parse(result);
         // console.log(res);
         console.log(res.choices[0].message);
         const aiResponse = res.choices[0].message.content;
-        if(aiResponse.toLowerCase().includes('yes')){
+        if (aiResponse.toLowerCase().includes('yes')) {
           client.reply(channel, 'https://discord.gg/6HJ2C99cqR', tags.id);
         }
-    } catch (error) {
-      console.error(error);
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 
@@ -451,7 +454,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
   });
 
   client.on('join', (channel, username, self) => {
-    if(!dontshow.includes(username)) {
+    if (!dontshow.includes(username)) {
       viewerlist.push(username);
     }
   });
@@ -475,7 +478,7 @@ fastify.get('/viewerslist', async (request, reply) => {
 });
 
 // Run the server!
-fastify.listen({ port: process.env.PORT || 3000 , host: '0.0.0.0' }, (err) => {
+fastify.listen({ port: process.env.PORT || 3000, host: '0.0.0.0' }, (err) => {
   if (err) {
     fastify.log.error(err)
     process.exit(1)
