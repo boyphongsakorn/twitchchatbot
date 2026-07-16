@@ -402,7 +402,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
     if (isQuestion) {
       raw = JSON.stringify({
-        "model": "qwen3.5:9b",
+        "model": "qwen3.5:4b",
         "messages": [
           {
             "role": "user",
