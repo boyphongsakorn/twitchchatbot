@@ -430,7 +430,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         console.log(res.choices[0].message);
         const aiResponse = res.choices[0].message.content;
         if (aiResponse.toLowerCase().includes('yes')) {
-          client.reply(channel, 'https://discord.gg/6HJ2C99cqR', tags.id);
+          client.reply(channel, 'https://discord.gg/6RJ99Fw8SR', tags.id);
         }
       } catch (error) {
         console.error(error);
