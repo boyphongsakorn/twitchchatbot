@@ -49,7 +49,7 @@ function queuedFetch(url, options) {
 }
 
 let viewerlist = [];
-const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyalone99', process.env.TWITCH_USERNAME];
+const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyalone99', 'kofistreambot', process.env.TWITCH_USERNAME];
 
 (async () => {
   const twitchrefresh = await fetch('https://twitchtokengenerator.com/api/refresh/' + process.env.TWITCH_OAUTH_REFRESH);
@@ -86,7 +86,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     console.log(`Disconnected: ${reason}`);
   });
 
-  const knownBots = ['nightbot', 'streamelements', 'moobot', 'ba99bot'];
+  const knownBots = ['nightbot', 'streamelements', 'moobot', 'ba99bot', 'kofistreambot'];
 
   client.on('message', (channel, tags, message, self) => {
     // Ignore messages from the bot itself
