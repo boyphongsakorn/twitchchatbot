@@ -304,6 +304,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
   }
 
   async function handleMessage(channel, tags, message) {
+    const containsEmote = messageContainsEmote(message);
 
     let raw = JSON.stringify({
       "model": "gemma3n:e2b",
