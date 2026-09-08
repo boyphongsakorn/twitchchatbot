@@ -41,6 +41,27 @@ class AsyncQueue {
 
 const llmQueue = new AsyncQueue();
 const LLM_ENDPOINT = 'http://192.168.31.220:3001/api/chat/completions';
+const EMOTES_ENDPOINT = 'https://mergechat.pwisetthon.com/emotes';
+let emoteNames = new Set();
+
+async function loadEmotes() {
+  try {
+    const response = await fetch(EMOTES_ENDPOINT);
+    if (!response.ok) {
+      throw new Error(`Emote request failed: ${response.status} ${response.statusText}`);
+    }
+
+    const emotes = await response.json();
+    emoteNames = new Set(Object.keys(emotes));
+    console.log(`Loaded ${emoteNames.size} emotes`);
+  } catch (error) {
+    console.error('Failed to load emotes:', error);
+  }
+}
+
+function messageContainsEmote(message) {
+  return message.split(/\s+/).some((word) => emoteNames.has(word));
+}
 
 // Drop-in replacement for fetch() against the LLM endpoint: same signature,
 // same return value (a Promise<Response>), but serialized through llmQueue.
@@ -52,6 +73,8 @@ let viewerlist = [];
 const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyalone99', 'kofistreambot', process.env.TWITCH_USERNAME];
 
 (async () => {
+  await loadEmotes();
+
   const twitchrefresh = await fetch('https://twitchtokengenerator.com/api/refresh/' + process.env.TWITCH_OAUTH_REFRESH);
   const twitchdata = await twitchrefresh.json();
   process.env.TWITCH_OAUTH_TOKEN = twitchdata.token ?? twitchdata.access_token;
@@ -109,6 +132,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
   async function handleCommand(channel, tags, message) {
     const args = message.slice(1).split(' ');
     const command = args[0].toLowerCase();
+    const containsEmote = messageContainsEmote(message);
 
     switch (command) {
 
@@ -222,7 +246,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             console.log(restwo.choices[0].message);
             const aiResponsetwo = restwo.choices[0].message.content;
 
-            if (aiResponse.toLowerCase().includes('yes') && aiResponsetwo.toLowerCase().includes('yes')) {
+            if (!containsEmote && aiResponse.toLowerCase().includes('yes') && aiResponsetwo.toLowerCase().includes('yes')) {
               //remove scam message
               client.reply(channel, 'ข้อความนี้เป็นข้อความสแปม', tags.id);
               // client.timeout(channel, tags.username, 1, 'Scam message detected').catch((err) => console.error(err));
@@ -371,7 +395,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
           console.log(restwo.choices[0].message);
           const aiResponsetwo = restwo.choices[0].message.content;
 
-          if (aiResponse.toLowerCase().includes('yes') && aiResponsetwo.toLowerCase().includes('yes')) {
+          if (!containsEmote && aiResponse.toLowerCase().includes('yes') && aiResponsetwo.toLowerCase().includes('yes')) {
             isQuestion = false;
             //remove scam message
             // client.timeout(channel, tags.username, 1, 'Scam message detected').catch((err) => console.error(err));
