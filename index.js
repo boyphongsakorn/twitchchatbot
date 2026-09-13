@@ -162,7 +162,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             });
 
             const stream = await openai.chat.completions.create({
-              model: 'gemma-combo',
+              model: 'foranswerbasicquestions',
               messages: [
                 { role: 'system', content: 'คุณเป็น AI assistant ตอบสั้น กระชับ ตอบแค่ 1 บรรทัด ห้ามใช้ markdown ห้ามใช้ ** ห้ามขึ้นหลายบรรทัด' },
                 { role: 'user', content: message.replace('!askai', '').replace('!ask', '').trim() }
