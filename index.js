@@ -3,6 +3,7 @@ const tmi = require('tmi.js');
 const fastify = require('fastify')({ logger: false });
 const path = require('path');
 const { Agent, setGlobalDispatcher } = require('undici');
+const { OpenAI } = require('openai');
 
 fastify.register(require('@fastify/static'), {
   root: path.join(__dirname, 'public'),
@@ -41,6 +42,7 @@ class AsyncQueue {
 
 const llmQueue = new AsyncQueue();
 const LLM_ENDPOINT = 'http://192.168.31.220:3001/api/chat/completions';
+const NINEROUTER_ENDPOINT = 'http://192.168.31.220:20128/v1/chat/completions';
 const EMOTES_ENDPOINT = 'https://mergechat.pwisetthon.com/emotes';
 let emoteNames = new Set();
 
@@ -153,36 +155,54 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       case 'askai':
 
         if (message.replace('!askai', '').trim().length != 0 || message.replace('!ask', '').trim().length != 0) {
-          const raw = JSON.stringify({
-            "model": "gemma3ne2b-fortwitchchat",
-            "messages": [
-              {
-                "role": "user",
-                "content": message.replace('!askai', '').replace('!ask', '').trim()
-              }
-            ]
-          });
+          if (process.env.mode === 'ninerouter') {
+            const openai = new OpenAI({
+              baseURL: NINEROUTER_ENDPOINT,
+              apiKey: process.env.NINEROUTER_API_KEY,
+            });
 
-          const requestOptions = {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
-            },
-            body: raw,
-            redirect: "manual",
-            signal: AbortSignal.timeout(30 * 60 * 1000)
-          };
+            const stream = await openai.chat.completions.create({
+              model: 'gemma-combo',
+              messages: [{ role: 'user', content: message.replace('!askai', '').replace('!ask', '').trim() }],
+              stream: true,
+            });
 
-          queuedFetch(LLM_ENDPOINT, requestOptions)
-            .then((response) => response.text())
-            .then((result) => {
-              const res = JSON.parse(result);
-              // console.log(res);
-              const aiResponse = res.choices[0].message.content;
-              client.reply(channel, `${aiResponse}`, tags.id);
-            })
-            .catch((error) => console.error(error));
+            for await (const chunk of stream) {
+              // process.stdout.write(chunk.choices[0]?.delta?.content || '');
+              client.reply(channel, `${chunk.choices[0]?.delta?.content}`, tags.id);
+            }
+          } else {
+            const raw = JSON.stringify({
+              "model": "gemma3ne2b-fortwitchchat",
+              "messages": [
+                {
+                  "role": "user",
+                  "content": message.replace('!askai', '').replace('!ask', '').trim()
+                }
+              ]
+            });
+
+            const requestOptions = {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+              },
+              body: raw,
+              redirect: "manual",
+              signal: AbortSignal.timeout(30 * 60 * 1000)
+            };
+
+            queuedFetch(LLM_ENDPOINT, requestOptions)
+              .then((response) => response.text())
+              .then((result) => {
+                const res = JSON.parse(result);
+                // console.log(res);
+                const aiResponse = res.choices[0].message.content;
+                client.reply(channel, `${aiResponse}`, tags.id);
+              })
+              .catch((error) => console.error(error));
+          }
           break;
         } else {
           client.reply(channel, `กรุณาใส่ข้อความหลังคำสั่ง !ask ด้วยครับ`, tags.id);
