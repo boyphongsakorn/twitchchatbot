@@ -167,10 +167,16 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               stream: true,
             });
 
+            let fullMessage = '';
+
+            // Collect each chunk into one variable
             for await (const chunk of stream) {
               // process.stdout.write(chunk.choices[0]?.delta?.content || '');
-              client.reply(channel, `${chunk.choices[0]?.delta?.content}`, tags.id);
+              fullMessage += chunk.choices[0]?.delta?.content || '';
             }
+
+            // Send to chat ONLY after streaming completes
+            client.reply(channel, `${fullMessage}`, tags.id);
           } else {
             const raw = JSON.stringify({
               "model": "gemma3ne2b-fortwitchchat",
