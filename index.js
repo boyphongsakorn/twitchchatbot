@@ -42,7 +42,7 @@ class AsyncQueue {
 
 const llmQueue = new AsyncQueue();
 const LLM_ENDPOINT = 'http://192.168.31.220:3001/api/chat/completions';
-const NINEROUTER_ENDPOINT = 'http://192.168.31.220:20128/v1/chat/completions';
+const NINEROUTER_ENDPOINT = 'http://192.168.31.220:20128/v1';
 const EMOTES_ENDPOINT = 'https://mergechat.pwisetthon.com/emotes';
 let emoteNames = new Set();
 
