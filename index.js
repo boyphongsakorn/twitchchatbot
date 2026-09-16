@@ -515,6 +515,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             aiResponse = res.choices[0].message.content;
           }
 
+          let aiResponsetwo = '';
+
           raw = JSON.stringify({
             "model": "gemma4:12b",
             "messages": [
@@ -536,11 +538,30 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             signal: AbortSignal.timeout(30 * 60 * 1000)
           };
 
-          const responsetwo = await queuedFetch(LLM_ENDPOINT, requestOptions);
-          const resulttwo = await responsetwo.text();
-          const restwo = JSON.parse(resulttwo);
-          console.log(restwo.choices[0].message);
-          const aiResponsetwo = restwo.choices[0].message.content;
+          if (process.env.mode === 'ninerouter') {
+            const openai = new OpenAI({
+              baseURL: NINEROUTER_ENDPOINT,
+              apiKey: process.env.NINEROUTER_API_KEY,
+            });
+
+            const streamtwo = await openai.chat.completions.create({
+              model: 'gemma-combo',
+              messages: [
+                { role: 'user', content: "\"" + message + "\" is that scam or promotion or advertising message from twitch chat? Answer me just yes or no." }
+              ],
+              stream: true,
+            });
+
+            for await (const chunk of streamtwo) {
+              aiResponsetwo += chunk.choices[0]?.delta?.content || '';
+            }
+          } else {
+            const responsetwo = await queuedFetch(LLM_ENDPOINT, requestOptions);
+            const resulttwo = await responsetwo.text();
+            const restwo = JSON.parse(resulttwo);
+            console.log(restwo.choices[0].message);
+            aiResponsetwo = restwo.choices[0].message.content;
+          }
 
           if (!containsEmote && aiResponse.toLowerCase().includes('yes') && aiResponsetwo.toLowerCase().includes('yes')) {
             isQuestion = false;
