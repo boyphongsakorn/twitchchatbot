@@ -135,6 +135,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     const args = message.slice(1).split(' ');
     const command = args[0].toLowerCase();
     const containsEmote = messageContainsEmote(message);
+    const replyTargetId = tags['reply-parent-msg-id'] || tags.id;
 
     switch (command) {
 
@@ -179,7 +180,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             }
 
             // Send to chat ONLY after streaming completes
-            client.reply(channel, `${fullMessage}`, tags.id);
+            client.reply(channel, `${fullMessage}`, replyTargetId);
           } else {
             const raw = JSON.stringify({
               "model": "gemma3ne2b-fortwitchchat",
@@ -208,13 +209,13 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
                 const res = JSON.parse(result);
                 // console.log(res);
                 const aiResponse = res.choices[0].message.content;
-                client.reply(channel, `${aiResponse}`, tags.id);
+                client.reply(channel, `${aiResponse}`, replyTargetId);
               })
               .catch((error) => console.error(error));
           }
           break;
         } else {
-          client.reply(channel, `กรุณาใส่ข้อความหลังคำสั่ง !ask ด้วยครับ`, tags.id);
+          client.reply(channel, `กรุณาใส่ข้อความหลังคำสั่ง !ask ด้วยครับ`, replyTargetId);
           break;
         }
 
