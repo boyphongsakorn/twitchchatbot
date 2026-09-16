@@ -517,27 +517,6 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
           let aiResponsetwo = '';
 
-          raw = JSON.stringify({
-            "model": "gemma4:12b",
-            "messages": [
-              {
-                "role": "user",
-                "content": "\"" + message + "\" is that scam or promotion or advertising message from twitch chat? Answer me just yes or no."
-              }
-            ]
-          });
-
-          requestOptions = {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
-            },
-            body: raw,
-            redirect: "manual",
-            signal: AbortSignal.timeout(30 * 60 * 1000)
-          };
-
           if (process.env.mode === 'ninerouter') {
             const openai = new OpenAI({
               baseURL: NINEROUTER_ENDPOINT,
@@ -556,6 +535,27 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               aiResponsetwo += chunk.choices[0]?.delta?.content || '';
             }
           } else {
+            raw = JSON.stringify({
+              "model": "gemma4:12b",
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "\"" + message + "\" is that scam or promotion or advertising message from twitch chat? Answer me just yes or no."
+                }
+              ]
+            });
+
+            requestOptions = {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+              },
+              body: raw,
+              redirect: "manual",
+              signal: AbortSignal.timeout(30 * 60 * 1000)
+            };
+
             const responsetwo = await queuedFetch(LLM_ENDPOINT, requestOptions);
             const resulttwo = await responsetwo.text();
             const restwo = JSON.parse(resulttwo);
