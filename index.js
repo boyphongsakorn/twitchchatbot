@@ -117,8 +117,16 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     // Ignore messages from the bot itself
     if (self) return;
 
+    const isReplyToBot = (tags['reply-parent-user-login'] || '').toLowerCase() === (process.env.TWITCH_USERNAME || '').toLowerCase();
+
     // Log all messages
     console.log(`[${channel}] ${tags.username}: ${message}`);
+
+    // Direct reply to the bot should act like a follow-up question.
+    if (isReplyToBot && !message.startsWith('!')) {
+      handleCommand(channel, tags, `!ask ${message}`);
+      return;
+    }
 
     // Command handler
     if (message.startsWith('!')) {
@@ -400,6 +408,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
   async function handleMessage(channel, tags, message) {
     const containsEmote = messageContainsEmote(message);
+    const replyTargetId = tags['reply-parent-msg-id'] || tags.id;
 
     let raw = JSON.stringify({
       "model": "gemma3n:e2b",
@@ -623,7 +632,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         console.log(res.choices[0].message);
         const aiResponse = res.choices[0].message.content;
         if (aiResponse.toLowerCase().includes('yes')) {
-          client.reply(channel, 'https://discord.gg/6RJ99Fw8SR', tags.id);
+          client.reply(channel, 'https://discord.gg/6RJ99Fw8SR', replyTargetId);
         }
       } catch (error) {
         console.error(error);
