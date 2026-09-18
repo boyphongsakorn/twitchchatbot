@@ -625,12 +625,36 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       };
 
       try {
-        const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
-        const result = await response.text();
-        const res = JSON.parse(result);
-        // console.log(res);
-        console.log(res.choices[0].message);
-        const aiResponse = res.choices[0].message.content;
+        let aiResponse = '';
+
+        if (process.env.mode === 'ninerouter') {
+          const openai = new OpenAI({
+            baseURL: NINEROUTER_ENDPOINT,
+            apiKey: process.env.NINEROUTER_API_KEY,
+          });
+
+          const stream = await openai.chat.completions.create({
+            model: 'glm-combo',
+            messages: [
+              {
+                role: 'user',
+                content: `"${message}" from the above message, is it a message that wants to play a game with me? Answer just yes or no.`
+              }
+            ],
+            stream: true,
+          });
+
+          for await (const chunk of stream) {
+            aiResponse += chunk.choices[0]?.delta?.content || '';
+          }
+        } else {
+          const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
+          const result = await response.text();
+          const res = JSON.parse(result);
+          console.log(res.choices[0].message);
+          aiResponse = res.choices[0].message.content;
+        }
+
         if (aiResponse.toLowerCase().includes('yes')) {
           client.reply(channel, 'https://discord.gg/6RJ99Fw8SR', replyTargetId);
         }
