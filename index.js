@@ -44,6 +44,9 @@ const llmQueue = new AsyncQueue();
 const LLM_ENDPOINT = 'http://192.168.31.220:3001/api/chat/completions';
 const NINEROUTER_ENDPOINT = 'http://192.168.31.220:20128/v1';
 const EMOTES_ENDPOINT = 'https://mergechat.pwisetthon.com/emotes';
+const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID || 'gp762nuuoqcoxypju8c569th9wz7q5';
+const followerCache = new Map();
+const FOLLOWER_CACHE_TTL = 5 * 60 * 1000;
 let emoteNames = new Set();
 
 async function loadEmotes() {
@@ -63,6 +66,49 @@ async function loadEmotes() {
 
 function messageContainsEmote(message) {
   return message.split(/\s+/).some((word) => emoteNames.has(word));
+}
+
+async function userFollowsChannel(tags) {
+  const broadcasterId = tags['room-id'];
+  const userId = tags['user-id'];
+  if (!broadcasterId || !userId || !process.env.TWITCH_OAUTH_TOKEN) {
+    return false;
+  }
+
+  const cacheKey = `${broadcasterId}:${userId}`;
+  const cached = followerCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.isFollower;
+  }
+
+  const params = new URLSearchParams({
+    broadcaster_id: broadcasterId,
+    user_id: userId,
+  });
+
+  try {
+    const response = await fetch(`https://api.twitch.tv/helix/channels/followers?${params}`, {
+      headers: {
+        'Client-ID': TWITCH_CLIENT_ID,
+        'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Follower request failed: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    const isFollower = result.data?.some((follower) => follower.user_id === userId) || false;
+    followerCache.set(cacheKey, {
+      isFollower,
+      expiresAt: Date.now() + FOLLOWER_CACHE_TTL,
+    });
+    return isFollower;
+  } catch (error) {
+    console.error(`Failed to check follower status for ${tags.username}:`, error);
+    return false;
+  }
 }
 
 // Drop-in replacement for fetch() against the LLM endpoint: same signature,
@@ -275,7 +321,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
                 let removeapioptions = {
                   method: 'DELETE',
                   headers: {
-                    'Client-ID': 'gp762nuuoqcoxypju8c569th9wz7q5',
+                    'Client-ID': TWITCH_CLIENT_ID,
                     'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
                   }
                 };
@@ -355,7 +401,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
                 let removeapioptions = {
                   method: 'DELETE',
                   headers: {
-                    'Client-ID': 'gp762nuuoqcoxypju8c569th9wz7q5',
+                    'Client-ID': TWITCH_CLIENT_ID,
                     'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
                   }
                 };
@@ -381,7 +427,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
           let removeapioptions = {
             method: 'DELETE',
             headers: {
-              'Client-ID': 'gp762nuuoqcoxypju8c569th9wz7q5',
+              'Client-ID': TWITCH_CLIENT_ID,
               'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
             }
           };
@@ -470,7 +516,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       }
     }
 
-    if (!isQuestion) {
+    if (!isQuestion && !(await userFollowsChannel(tags))) {
       
       raw = JSON.stringify({
         "model": "qwen3:8b",
@@ -580,7 +626,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             let removeapioptions = {
               method: 'DELETE',
               headers: {
-                'Client-ID': 'gp762nuuoqcoxypju8c569th9wz7q5',
+                'Client-ID': TWITCH_CLIENT_ID,
                 'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
               }
             };
