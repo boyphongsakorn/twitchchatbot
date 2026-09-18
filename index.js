@@ -95,7 +95,9 @@ async function userFollowsChannel(tags) {
     });
 
     if (!response.ok) {
-      throw new Error(`Follower request failed: ${response.status} ${response.statusText}`);
+      // throw new Error(`Follower request failed: ${response.status} ${response.statusText}`);
+      console.error(`Follower request failed: ${response.status} ${response.statusText}`);
+      return false;
     }
 
     const result = await response.json();
