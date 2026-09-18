@@ -129,6 +129,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
   const twitchdata = await twitchrefresh.json();
   process.env.TWITCH_OAUTH_TOKEN = twitchdata.token ?? twitchdata.access_token;
   console.log('Refreshed Twitch OAuth Token');
+  console.log('Twitch OAuth Token:', process.env.TWITCH_OAUTH_TOKEN);
 
   // Configuration for the Twitch bot
   const config = {
