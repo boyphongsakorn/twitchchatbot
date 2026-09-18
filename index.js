@@ -90,7 +90,7 @@ async function userFollowsChannel(tags) {
     const response = await fetch(`https://api.twitch.tv/helix/channels/followers?${params}`, {
       headers: {
         'Client-ID': TWITCH_CLIENT_ID,
-        'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN,
+        'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN.replace('oauth:', ''),
       },
     });
 
