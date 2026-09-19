@@ -215,7 +215,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
       case 'commands':
       case 'help':
-        client.say(channel, 'Available commands: !ask, !askai, !uptime, !commands');
+        client.say(channel, 'Available commands: !ask, !askai, !uptime, !testcheckuserfollow, !testdelmes, !commands');
         break;
 
       case 'uptime':
@@ -539,6 +539,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         aiResponse += chunk.choices[0]?.delta?.content || '';
       }
 
+      console.log(aiResponse);
       if (aiResponse.toLowerCase().includes('yes')) {
         isQuestion = true;
       }
@@ -601,6 +602,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               // process.stdout.write(chunk.choices[0]?.delta?.content || '');
               aiResponse += chunk.choices[0]?.delta?.content || '';
             }
+            console.log(aiResponse);
           } else {
             const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
             const result = await response.text();
@@ -629,6 +631,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             for await (const chunk of streamtwo) {
               aiResponsetwo += chunk.choices[0]?.delta?.content || '';
             }
+
+            console.log(aiResponsetwo);
           } else {
             raw = JSON.stringify({
               "model": "gemma4:12b",
