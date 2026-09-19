@@ -68,6 +68,23 @@ function messageContainsEmote(message) {
   return message.split(/\s+/).some((word) => emoteNames.has(word));
 }
 
+async function getTwitchUserId(login) {
+  const params = new URLSearchParams({ login });
+  const response = await fetch(`https://api.twitch.tv/helix/users?${params}`, {
+    headers: {
+      'Client-ID': TWITCH_CLIENT_ID,
+      'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN.replace('oauth:', ''),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`User lookup failed: ${response.status} ${response.statusText}`);
+  }
+
+  const result = await response.json();
+  return result.data?.[0]?.id;
+}
+
 async function userFollowsChannel(tags) {
   const broadcasterId = tags['room-id'];
   const userId = tags['user-id'];
@@ -207,6 +224,25 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         const minutes = Math.floor((uptime % 3600) / 60);
         const seconds = Math.floor(uptime % 60);
         client.say(channel, `Bot uptime: ${hours}h ${minutes}m ${seconds}s ⏰`);
+        break;
+
+      case 'testcheckuserfollow':
+        try {
+          const userId = await getTwitchUserId('ba99bot');
+          if (!userId) {
+            client.reply(channel, 'ไม่พบผู้ใช้ ba99bot', replyTargetId);
+            break;
+          }
+
+          const isFollower = await userFollowsChannel({
+            ...tags,
+            'user-id': userId,
+          });
+          client.reply(channel, `ba99bot ${isFollower ? 'ติดตาม' : 'ไม่ได้ติดตาม'} ช่องนี้`, replyTargetId);
+        } catch (error) {
+          console.error('Failed to check ba99bot follower status:', error);
+          client.reply(channel, 'ตรวจสอบสถานะผู้ติดตามไม่สำเร็จ', replyTargetId);
+        }
         break;
 
       case 'ask':
