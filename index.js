@@ -44,6 +44,7 @@ const llmQueue = new AsyncQueue();
 const LLM_ENDPOINT = 'http://192.168.31.220:3001/api/chat/completions';
 const NINEROUTER_ENDPOINT = 'http://192.168.31.220:20128/v1';
 const EMOTES_ENDPOINT = 'https://mergechat.pwisetthon.com/emotes';
+const STATUS_ENDPOINT = 'https://localpost.teamquadb.in.th/twitchstatus';
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID || 'gp762nuuoqcoxypju8c569th9wz7q5';
 const followerCache = new Map();
 const FOLLOWER_CACHE_TTL = 5 * 60 * 1000;
@@ -61,6 +62,85 @@ async function loadEmotes() {
     console.log(`Loaded ${emoteNames.size} emotes`);
   } catch (error) {
     console.error('Failed to load emotes:', error);
+  }
+}
+
+async function getLiveGameName() {
+  try {
+    const response = await fetch(STATUS_ENDPOINT);
+    if (!response.ok) {
+      throw new Error(`Status request failed: ${response.status} ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.game_name;
+  } catch (error) {
+    console.error('Failed to fetch live game name:', error);
+    return null;
+  }
+}
+
+async function sendGameFunFact(client, channels) {
+  const gameName = await getLiveGameName();
+  if (!gameName) {
+    console.log('Could not determine live game name, skipping fun fact.');
+    return;
+  }
+
+  try {
+    let funFact = '';
+    if (process.env.mode === 'ninerouter') {
+      const openai = new OpenAI({
+        baseURL: NINEROUTER_ENDPOINT,
+        apiKey: process.env.NINEROUTER_API_KEY,
+      });
+
+      const response = await openai.chat.completions.create({
+        model: 'foranswerbasicquestions',
+        messages: [
+          { role: 'system', content: 'คุณเป็นผู้เชี่ยวชาญด้านเกม ให้ข้อเท็จจริงที่น่าสนใจ (fun fact) สั้นๆ เกี่ยวกับเกมที่ระบุ ตอบเป็นภาษาไทย กระชับ 1-2 ประโยค ห้ามใช้ markdown' },
+          { role: 'user', content: `Tell me a fun fact about the game: ${gameName}` }
+        ],
+      });
+      funFact = response.choices[0].message.content;
+    } else {
+      const raw = JSON.stringify({
+        "model": "gemma3ne2b-fortwitchchat",
+        "messages": [
+          {
+            "role": "system",
+            "content": "คุณเป็นผู้เชี่ยวชาญด้านเกม ให้ข้อเท็จจริงที่น่าสนใจ (fun fact) สั้นๆ เกี่ยวกับเกมที่ระบุ ตอบเป็นภาษาไทย กระชับ 1-2 ประโยค ห้ามใช้ markdown"
+          },
+          {
+            "role": "user",
+            "content": `Tell me a fun fact about the game: ${gameName}`
+          }
+        ]
+      });
+
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+        },
+        body: raw,
+        redirect: "manual",
+        signal: AbortSignal.timeout(30 * 60 * 1000)
+      };
+
+      const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
+      const result = await response.text();
+      const res = JSON.parse(result);
+      funFact = res.choices[0].message.content;
+    }
+
+    if (funFact) {
+      for (const channel of channels) {
+        client.say(channel, `🎮 Fun Fact about ${gameName}: ${funFact}`);
+      }
+    }
+  } catch (error) {
+    console.error('Error generating game fun fact:', error);
   }
 }
 
@@ -760,6 +840,11 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
   // Connect to Twitch
   client.connect().catch(console.error);
+
+  // Start hourly fun facts
+  setInterval(() => {
+    sendGameFunFact(client, config.channels);
+  }, 60 * 60 * 1000);
 
   // Graceful shutdown
   process.on('SIGINT', () => {
