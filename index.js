@@ -842,9 +842,9 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
   client.connect().catch(console.error);
 
   // Start hourly fun facts
-  setInterval(() => {
-    sendGameFunFact(client, config.channels);
-  }, 60 * 60 * 1000);
+  // setInterval(() => {
+  //   sendGameFunFact(client, config.channels);
+  // }, 60 * 60 * 1000);
 
   // Graceful shutdown
   process.on('SIGINT', () => {
