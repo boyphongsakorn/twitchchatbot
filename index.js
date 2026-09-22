@@ -597,42 +597,83 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     };
 
     let isQuestion = false;
-    if (process.env.mode === 'ninerouter') {
-      const openai = new OpenAI({
-        baseURL: NINEROUTER_ENDPOINT,
-        apiKey: process.env.NINEROUTER_API_KEY,
+    if (process.env.mode === 'jev') {
+      raw = JSON.stringify({
+        "model": "oc/jev-1.13-free",
+        // "messages": [
+        //   {
+        //     "role": "user",
+        //     "content": "\"" + message + "\" is that question message? Answer me just yes or no."
+        //   }
+        // ]
+        "state": message,
+        "questions": {
+          "is_urgent": {
+              "type": "noul",
+              "instructions": "Does this message is a question message?"
+          }
+        }
       });
 
-      const stream = await openai.chat.completions.create({
-        model: 'gemma-combo',
-        messages: [
-          { role: 'user', content: "\"" + message + "\" is that question message? Answer me just yes or no." }
-        ],
-        stream: true,
-      });
+      requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + process.env.NINEROUTER_API_KEY
+        },
+        body: raw,
+        redirect: "manual",
+        signal: AbortSignal.timeout(30 * 60 * 1000)
+      };
 
-      let aiResponse = '';
-
-      // Collect each chunk into one variable
-      for await (const chunk of stream) {
-        // process.stdout.write(chunk.choices[0]?.delta?.content || '');
-        aiResponse += chunk.choices[0]?.delta?.content || '';
-      }
-
-      console.log(aiResponse);
-      if (aiResponse.toLowerCase().includes('yes')) {
-        isQuestion = true;
-      }
-    } else {
-      let fetchllm = await queuedFetch(LLM_ENDPOINT, requestOptions);
+      let fetchllm = await queuedFetch('http://192.168.31.220:20128/v1/systemone', requestOptions);
       let result = await fetchllm.text();
       let res = JSON.parse(result);
       // console.log(res);
-      console.log(res.choices[0].message);
-      const aiResponse = res.choices[0].message.content;
+      console.log(res);
+      const aiResponse = res.answers.is_urgent.noul;
 
-      if (aiResponse.toLowerCase().includes('yes')) {
+      if (parseFloat(aiResponse) > 0.5) {
         isQuestion = true;
+      }
+    } else {
+      if (process.env.mode === 'ninerouter') {
+        const openai = new OpenAI({
+          baseURL: NINEROUTER_ENDPOINT,
+          apiKey: process.env.NINEROUTER_API_KEY,
+        });
+
+        const stream = await openai.chat.completions.create({
+          model: 'gemma-combo',
+          messages: [
+            { role: 'user', content: "\"" + message + "\" is that question message? Answer me just yes or no." }
+          ],
+          stream: true,
+        });
+
+        let aiResponse = '';
+
+        // Collect each chunk into one variable
+        for await (const chunk of stream) {
+          // process.stdout.write(chunk.choices[0]?.delta?.content || '');
+          aiResponse += chunk.choices[0]?.delta?.content || '';
+        }
+
+        console.log(aiResponse);
+        if (aiResponse.toLowerCase().includes('yes')) {
+          isQuestion = true;
+        }
+      } else {
+        let fetchllm = await queuedFetch(LLM_ENDPOINT, requestOptions);
+        let result = await fetchllm.text();
+        let res = JSON.parse(result);
+        // console.log(res);
+        console.log(res.choices[0].message);
+        const aiResponse = res.choices[0].message.content;
+
+        if (aiResponse.toLowerCase().includes('yes')) {
+          isQuestion = true;
+        }
       }
     }
 
