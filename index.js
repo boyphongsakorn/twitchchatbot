@@ -395,7 +395,62 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       case 'testdelmes':
         if (message.replace('!testdelmes', '').trim().length != 0) {
           try {
-            if (process.env.mode === 'ninerouter') {
+            if (process.env.mode === 'jev') {
+              raw = JSON.stringify({
+                "model": "oc/jev-1.13-free",
+                "state": message.replace('!testdelmes', '').trim(),
+                "questions": {
+                  "is_urgent": {
+                      "type": "noul",
+                      "instructions": "Does this message is a scam or promotion or advertising message?"
+                  }
+                }
+              });
+
+              requestOptions = {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": "Bearer " + process.env.NINEROUTER_API_KEY
+                },
+                body: raw,
+                redirect: "manual",
+                signal: AbortSignal.timeout(30 * 60 * 1000)
+              };
+
+              let fetchllm = await queuedFetch('http://192.168.31.220:20128/v1/systemone', requestOptions);
+              let result = await fetchllm.text();
+              let res = JSON.parse(result);
+              // console.log(res);
+              console.log(res);
+              const aiResponse = res.answers.is_urgent.noul;
+
+              if (!containsEmote && parseFloat(aiResponse) > 0.5) {
+                //remove scam message
+                client.reply(channel, 'ข้อความนี้เป็นข้อความสแปม', tags.id);
+                // client.timeout(channel, tags.username, 1, 'Scam message detected').catch((err) => console.error(err));
+                let removeapioptions = {
+                  method: 'DELETE',
+                  headers: {
+                    'Client-ID': TWITCH_CLIENT_ID,
+                    'Authorization': 'Bearer ' + process.env.TWITCH_OAUTH_TOKEN
+                  }
+                };
+
+                try {
+                  const deleteResponse = await fetch(`https://api.twitch.tv/helix/moderation/chat?broadcaster_id=${tags['room-id']}&moderator_id=1414739525&message_id=${tags.id}`, removeapioptions);
+                  if (deleteResponse.ok) {
+                    console.log(`Deleted message from ${tags.username} for scam content.`);
+                  } else {
+                    console.error(`Failed to delete message: ${deleteResponse.statusText}`);
+                  }
+                } catch (error) {
+                  console.error(`Error deleting message: ${error}`);
+                }
+              } else {
+                client.reply(channel, 'ข้อความนี้ไม่ใช่ข้อความสแปม', tags.id);
+              }
+            } else if (process.env.mode === 'ninerouter') {
               const openai = new OpenAI({
                 baseURL: NINEROUTER_ENDPOINT,
                 apiKey: process.env.NINEROUTER_API_KEY,
