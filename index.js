@@ -910,9 +910,13 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
           const stream = await openai.chat.completions.create({
             model: 'glm-combo',
             messages: [
+              { 
+                role: 'system', 
+                content: 'Answer me just yes or no.' 
+              },
               {
                 role: 'user',
-                content: `"${message}" from the above message, is it a message that wants to play a game with me? Answer just yes or no.`
+                content: `"${message}", from the message is it a message that wants to play a game with me?`
               }
             ],
             stream: true,
