@@ -459,7 +459,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               const stream = await openai.chat.completions.create({
                 model: 'qwen3-combo',
                 messages: [
-                  { role: 'user', content: "\"" + message.replace('!testdelmes', '').trim() + "\" is that scam or promotion or advertising message? Answer me just yes or no." }
+                  { role: 'system', content: 'Answer me just yes or no.' },
+                  { role: 'user', content: "\"" + message.replace('!testdelmes', '').trim() + "\" is that scam or promotion or advertising message?" }
                 ],
                 stream: true,
               });
@@ -476,9 +477,10 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               console.log(stream);
 
               const streamtwo = await openai.chat.completions.create({
-                model: 'granite4-combo',
+                model: 'gemma-combo',
                 messages: [
-                  { role: 'user', content: "\"" + message.replace('!testdelmes', '').trim() + "\" is that scam or promotion or advertising message? Answer me just yes or no." }
+                  { role: 'system', content: 'Answer me just yes or no.' },
+                  { role: 'user', content: "\"" + message.replace('!testdelmes', '').trim() + "\" is that scam or promotion or advertising message?" }
                 ],
                 stream: true,
               });
