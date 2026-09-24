@@ -472,6 +472,9 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
                 aiResponse += chunk.choices[0]?.delta?.content || '';
               }
 
+              //console.log thinking
+              console.log(stream);
+
               const streamtwo = await openai.chat.completions.create({
                 model: 'granite4-combo',
                 messages: [
@@ -487,6 +490,9 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
                 // process.stdout.write(chunk.choices[0]?.delta?.content || '');
                 aiResponsetwo += chunk.choices[0]?.delta?.content || '';
               }
+
+              //console.log thinking
+              console.log(streamtwo);
 
               if (!containsEmote && aiResponse.toLowerCase().includes('yes') && aiResponsetwo.toLowerCase().includes('yes')) {
                 //remove scam message
