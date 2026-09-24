@@ -707,7 +707,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         const stream = await openai.chat.completions.create({
           model: 'gemma-combo',
           messages: [
-            { role: 'user', content: "\"" + message + "\" is that question message? Answer me just yes or no." }
+            { role: 'system', content: 'Answer me just yes or no.' },
+            { role: 'user', content: "\"" + message + "\" is that question message?" }
           ],
           stream: true,
         });
@@ -774,7 +775,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             const stream = await openai.chat.completions.create({
               model: 'qwen3-combo',
               messages: [
-                { role: 'user', content: "\"" + message + "\" is that scam or promotion or advertising message from twitch chat? Answer me just yes or no." }
+                { role: 'system', content: 'Answer me just yes or no.' },
+                { role: 'user', content: "\"" + message + "\" is that scam or promotion or advertising message from twitch chat?" }
               ],
               stream: true,
             });
@@ -805,7 +807,8 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
             const streamtwo = await openai.chat.completions.create({
               model: 'gemma-combo',
               messages: [
-                { role: 'user', content: "\"" + message + "\" is that scam or promotion or advertising message from twitch chat? Answer me just yes or no." }
+                { role: 'system', content: 'Answer me just yes or no.' },
+                { role: 'user', content: "\"" + message + "\" is that scam or promotion or advertising message from twitch chat?" }
               ],
               stream: true,
             });
