@@ -768,7 +768,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         try {
           let aiResponse = '';
 
-          if (process.env.mode === 'ninerouter') {
+          if (process.env.mode === 'ninerouter' || process.env.mode === 'jev') {
             const openai = new OpenAI({
               baseURL: NINEROUTER_ENDPOINT,
               apiKey: process.env.NINEROUTER_API_KEY,
@@ -800,7 +800,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
           let aiResponsetwo = '';
 
-          if (process.env.mode === 'ninerouter') {
+          if (process.env.mode === 'ninerouter' || process.env.mode === 'jev') {
             const openai = new OpenAI({
               baseURL: NINEROUTER_ENDPOINT,
               apiKey: process.env.NINEROUTER_API_KEY,
@@ -903,7 +903,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       try {
         let aiResponse = '';
 
-        if (process.env.mode === 'ninerouter') {
+        if (process.env.mode === 'ninerouter' || process.env.mode === 'jev') {
           const openai = new OpenAI({
             baseURL: NINEROUTER_ENDPOINT,
             apiKey: process.env.NINEROUTER_API_KEY,
