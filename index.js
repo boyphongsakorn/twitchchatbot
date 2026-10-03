@@ -942,6 +942,105 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         console.error(error);
       }
     }
+
+    raw = JSON.stringify({
+      "model": "glm-4.7-flash:latest",
+      "messages": [
+        {
+          "role": "user",
+          "content": "\"" + message + "\" from the above message, is it asking about getting a reward or how to get a reward by watching? Answer just yes or no."
+        }
+      ]
+    });
+
+    requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + process.env.LOCALLLM_API_KEY
+      },
+      body: raw,
+      redirect: "manual",
+      signal: AbortSignal.timeout(30 * 60 * 1000)
+    };
+
+    try {
+      let aiResponse = '';
+
+      if (process.env.mode === 'jev') {
+        raw = JSON.stringify({
+          "model": "oc/jev-1.13-free",
+          "state": message,
+          "questions": {
+            "is_urgent": {
+              "type": "noul",
+              "instructions": "Does this message ask about getting a reward or how to get a reward by watching?"
+            }
+          }
+        });
+
+        requestOptions = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + process.env.NINEROUTER_API_KEY
+          },
+          body: raw,
+          redirect: "manual",
+          signal: AbortSignal.timeout(30 * 60 * 1000)
+        };
+
+        let fetchllm = await queuedFetch('http://192.168.31.220:20128/v1/systemone', requestOptions);
+        let result = await fetchllm.text();
+        let res = JSON.parse(result);
+        console.log(res);
+        aiResponse = String(res.answers.is_urgent.noul);
+
+        if (parseFloat(aiResponse) > 0.5) {
+          client.reply(channel, 'https://neon-granita-d423fd.netlify.app', replyTargetId);
+        }
+      } else if (process.env.mode === 'ninerouter') {
+        const openai = new OpenAI({
+          baseURL: NINEROUTER_ENDPOINT,
+          apiKey: process.env.NINEROUTER_API_KEY,
+        });
+
+        const stream = await openai.chat.completions.create({
+          model: 'glm-combo',
+          messages: [
+            {
+              role: 'system',
+              content: 'Answer me just yes or no.'
+            },
+            {
+              role: 'user',
+              content: `"${message}", from the message is it asking about getting a reward or how to get a reward by watching?`
+            }
+          ],
+          stream: true,
+        });
+
+        for await (const chunk of stream) {
+          aiResponse += chunk.choices[0]?.delta?.content || '';
+        }
+
+        if (aiResponse.toLowerCase().includes('yes')) {
+          client.reply(channel, 'https://neon-granita-d423fd.netlify.app', replyTargetId);
+        }
+      } else {
+        const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
+        const result = await response.text();
+        const res = JSON.parse(result);
+        console.log(res.choices[0].message);
+        aiResponse = res.choices[0].message.content;
+
+        if (aiResponse.toLowerCase().includes('yes')) {
+          client.reply(channel, 'https://neon-granita-d423fd.netlify.app', replyTargetId);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   // Error handler
