@@ -997,7 +997,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         aiResponse = String(res.answers.is_urgent.noul);
 
         if (parseFloat(aiResponse) > 0.5) {
-          client.say(channel, 'รับ Alone Coin เพื่อแลกของขวัญได้ที่ https://neon-granita-d423fd.netlify.app');
+          client.say(channel, 'รับ Alone Coin เพื่อแลกของขวัญได้ที่ https://neon-granita-d423fd.netlify.app/alone-coin');
         }
       } else if (process.env.mode === 'ninerouter') {
         const openai = new OpenAI({
@@ -1025,7 +1025,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         }
 
         if (aiResponse.toLowerCase().includes('yes')) {
-          client.say(channel, 'รับ Alone Coin เพื่อแลกของขวัญได้ที่ https://neon-granita-d423fd.netlify.app');
+          client.say(channel, 'รับ Alone Coin เพื่อแลกของขวัญได้ที่ https://neon-granita-d423fd.netlify.app/alone-coin');
         }
       } else {
         const response = await queuedFetch(LLM_ENDPOINT, requestOptions);
@@ -1035,7 +1035,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         aiResponse = res.choices[0].message.content;
 
         if (aiResponse.toLowerCase().includes('yes')) {
-          client.say(channel, 'รับ Alone Coin เพื่อแลกของขวัญได้ที่ https://neon-granita-d423fd.netlify.app');
+          client.say(channel, 'รับ Alone Coin เพื่อแลกของขวัญได้ที่ https://neon-granita-d423fd.netlify.app/alone-coin');
         }
       }
     } catch (error) {
