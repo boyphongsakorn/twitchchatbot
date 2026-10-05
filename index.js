@@ -329,7 +329,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       case 'askai':
 
         if (message.replace('!askai', '').trim().length != 0 || message.replace('!ask', '').trim().length != 0) {
-          if (process.env.mode === 'ninerouter') {
+          if (process.env.mode === 'ninerouter' || process.env.mode === 'jev') {
             const openai = new OpenAI({
               baseURL: NINEROUTER_ENDPOINT,
               apiKey: process.env.NINEROUTER_API_KEY,
