@@ -778,7 +778,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               model: 'qwen3-combo',
               messages: [
                 { role: 'system', content: 'Answer me just yes or no.' },
-                { role: 'user', content: "\"" + message + "\" is that scam or promotion or advertising message from twitch chat?" }
+                { role: 'user', content: "\"" + message + "\" is that scam, promotion or advertising message from twitch chat?" }
               ],
               stream: true,
             });
@@ -810,7 +810,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
               model: 'gemma-combo',
               messages: [
                 { role: 'system', content: 'Answer me just yes or no.' },
-                { role: 'user', content: "\"" + message + "\" is that scam or promotion or advertising message from twitch chat?" }
+                { role: 'user', content: "\"" + message + "\" is that scam, promotion or advertising message from twitch chat?" }
               ],
               stream: true,
             });
