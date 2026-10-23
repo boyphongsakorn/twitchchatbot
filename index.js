@@ -397,7 +397,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
           try {
             if (process.env.mode === 'jev') {
               raw = JSON.stringify({
-                "model": "oc/jev-1.13-free",
+                "model": "ocz/jev-1.13-free",
                 "state": message.replace('!testdelmes', '').trim(),
                 "questions": {
                   "is_urgent": {
@@ -662,7 +662,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
     let isQuestion = false;
     if (process.env.mode === 'jev') {
       raw = JSON.stringify({
-        "model": "oc/jev-1.13-free",
+        "model": "ocz/jev-1.13-free",
         // "messages": [
         //   {
         //     "role": "user",
@@ -969,7 +969,7 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
       if (process.env.mode === 'jev') {
         raw = JSON.stringify({
-          "model": "oc/jev-1.13-free",
+          "model": "ocz/jev-1.13-free",
           "state": message,
           "questions": {
             "is_urgent": {
