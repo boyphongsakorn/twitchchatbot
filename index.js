@@ -45,6 +45,11 @@ const LLM_ENDPOINT = 'http://192.168.31.220:3001/api/chat/completions';
 const NINEROUTER_ENDPOINT = 'http://192.168.31.220:20128/v1';
 const EMOTES_ENDPOINT = 'https://mergechat.pwisetthon.com/emotes';
 const STATUS_ENDPOINT = 'https://localpost.teamquadb.in.th/twitchstatus';
+const JEV_ENDPOINT = 'http://192.168.31.220:20128/v1/systemone';
+const JEV_MODELS = (process.env.JEV_MODELS || 'oc/jev-1.13-free,ocz/jev-1.13-free,openrouter/baseten/mammoth-1:free,openrouter/baseten/elephant-1:free,ollama-local/clef-flash')
+  .split(',')
+  .map((model) => model.trim())
+  .filter(Boolean);
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID || 'gp762nuuoqcoxypju8c569th9wz7q5';
 const followerCache = new Map();
 const FOLLOWER_CACHE_TTL = 5 * 60 * 1000;
@@ -214,6 +219,54 @@ async function userFollowsChannel(tags) {
 // same return value (a Promise<Response>), but serialized through llmQueue.
 function queuedFetch(url, options) {
   return llmQueue.enqueue(() => fetch(url, options));
+}
+
+// Tries each JEV model in order. Returns the parsed answer for the first
+// model that responds OK, or throws the last error if all models fail.
+async function jevSystemOne(state, instructions) {
+  let lastError;
+  for (const model of JEV_MODELS) {
+    try {
+      const body = JSON.stringify({
+        "model": model,
+        "state": state,
+        "questions": {
+          "is_urgent": {
+            "type": "noul",
+            "instructions": instructions
+          }
+        }
+      });
+
+      const response = await queuedFetch(JEV_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + process.env.NINEROUTER_API_KEY
+        },
+        body,
+        redirect: "manual",
+        signal: AbortSignal.timeout(30 * 60 * 1000)
+      });
+
+      if (!response.ok) {
+        throw new Error(`JEV request failed: ${response.status} ${response.statusText}`);
+      }
+
+      const res = await response.json();
+      const answer = res.answers?.is_urgent?.noul;
+      if (answer === undefined || answer === null) {
+        throw new Error(`JEV model ${model} returned no answer`);
+      }
+
+      console.log(`JEV model ${model}:`, res);
+      return answer;
+    } catch (error) {
+      console.error(`JEV model ${model} failed:`, error.message);
+      lastError = error;
+    }
+  }
+  throw lastError ?? new Error('No JEV models configured');
 }
 
 let viewerlist = [];
@@ -396,34 +449,10 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
         if (message.replace('!testdelmes', '').trim().length != 0) {
           try {
             if (process.env.mode === 'jev') {
-              raw = JSON.stringify({
-                "model": "ocz/jev-1.13-free",
-                "state": message.replace('!testdelmes', '').trim(),
-                "questions": {
-                  "is_urgent": {
-                      "type": "noul",
-                      "instructions": "Does this message is a scam or promotion or advertising message?"
-                  }
-                }
-              });
-
-              requestOptions = {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": "Bearer " + process.env.NINEROUTER_API_KEY
-                },
-                body: raw,
-                redirect: "manual",
-                signal: AbortSignal.timeout(30 * 60 * 1000)
-              };
-
-              let fetchllm = await queuedFetch('http://192.168.31.220:20128/v1/systemone', requestOptions);
-              let result = await fetchllm.text();
-              let res = JSON.parse(result);
-              // console.log(res);
-              console.log(res);
-              const aiResponse = res.answers.is_urgent.noul;
+              const aiResponse = await jevSystemOne(
+                message.replace('!testdelmes', '').trim(),
+                'Does this message is a scam or promotion or advertising message?'
+              );
 
               if (!containsEmote && parseFloat(aiResponse) > 0.5) {
                 //remove scam message
@@ -661,40 +690,10 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
 
     let isQuestion = false;
     if (process.env.mode === 'jev') {
-      raw = JSON.stringify({
-        "model": "ocz/jev-1.13-free",
-        // "messages": [
-        //   {
-        //     "role": "user",
-        //     "content": "\"" + message + "\" is that question message? Answer me just yes or no."
-        //   }
-        // ]
-        "state": message,
-        "questions": {
-          "is_urgent": {
-              "type": "noul",
-              "instructions": "Does this message is a question message?"
-          }
-        }
-      });
-
-      requestOptions = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + process.env.NINEROUTER_API_KEY
-        },
-        body: raw,
-        redirect: "manual",
-        signal: AbortSignal.timeout(30 * 60 * 1000)
-      };
-
-      let fetchllm = await queuedFetch('http://192.168.31.220:20128/v1/systemone', requestOptions);
-      let result = await fetchllm.text();
-      let res = JSON.parse(result);
-      // console.log(res);
-      console.log(res);
-      const aiResponse = res.answers.is_urgent.noul;
+      const aiResponse = await jevSystemOne(
+        message,
+        'Does this message is a question message?'
+      );
 
       if (parseFloat(aiResponse) > 0.5) {
         isQuestion = true;
@@ -968,33 +967,10 @@ const dontshow = ['nightbot', 'streamelements', 'moobot', 'trackerggbot', 'boyal
       let aiResponse = '';
 
       if (process.env.mode === 'jev') {
-        raw = JSON.stringify({
-          "model": "ocz/jev-1.13-free",
-          "state": message,
-          "questions": {
-            "is_urgent": {
-              "type": "noul",
-              "instructions": "Does this message ask about getting a reward or how to get a reward by watching?"
-            }
-          }
-        });
-
-        requestOptions = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + process.env.NINEROUTER_API_KEY
-          },
-          body: raw,
-          redirect: "manual",
-          signal: AbortSignal.timeout(30 * 60 * 1000)
-        };
-
-        let fetchllm = await queuedFetch('http://192.168.31.220:20128/v1/systemone', requestOptions);
-        let result = await fetchllm.text();
-        let res = JSON.parse(result);
-        console.log(res);
-        aiResponse = String(res.answers.is_urgent.noul);
+        aiResponse = String(await jevSystemOne(
+          message,
+          'Does this message ask about getting a reward or how to get a reward by watching?'
+        ));
 
         if (parseFloat(aiResponse) > 0.5) {
           client.say(channel, 'รับ Alone Coin เพื่อแลกของขวัญได้ที่ https://neon-granita-d423fd.netlify.app/alone-coin');
